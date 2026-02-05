@@ -1,12 +1,13 @@
 /**
  * LIFE ENGLISH - SCRIPT COMPLETO 
- * (Mantendo Geradores IA, Smart Chunking e Integração API Adaptativa)
+ * Versão: Cloud Optimized (MongoDB + Render)
  */
 
-// AJUSTE PARA NUVEM: Detecta se está no localhost ou na internet (Render)
+// AJUSTE PARA NUVEM: Detecta automaticamente se está no PC ou na Web
+const BASE_URL = window.location.origin;
 const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:3000/api/frases"
-    : "/api/frases";
+    : `${BASE_URL}/api/frases`;
 
 let frases = [];
 let xp = parseInt(localStorage.getItem('dev_xp')) || 0;
@@ -340,16 +341,47 @@ async function analisarDinamico() {
     }, 800);
 }
 
+// FUNÇÃO DE SALVAMENTO CORRIGIDA PARA CELULAR E RENDER
 async function saveNewPhrase() {
     const en = document.getElementById('newEn').value;
     const pt = document.getElementById('newPt').value;
     const soundsLike = document.getElementById('manualSounds').value;
+    const level = document.getElementById('newLevel').value;
+
     if (!en || !pt) return alert("Preencha os campos!");
-    const novaFrase = { en, pt, meta: { level: document.getElementById('newLevel').value, tense: analiseAtual.tense || "PRESENT", type: analiseAtual.type || "AFFIRMATIVE", soundsLike: soundsLike || en } };
+
+    const novaFrase = {
+        en: en.trim(),
+        pt: pt.trim(),
+        meta: {
+            level: level,
+            tense: analiseAtual.tense || "PRESENT",
+            type: analiseAtual.type || "AFFIRMATIVE",
+            soundsLike: soundsLike || en
+        }
+    };
+
     try {
-        const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(novaFrase) });
-        if (res.ok) { alert("✨ Frase Salva no MongoDB!"); location.reload(); }
-    } catch (e) { alert("Erro ao conectar ao servidor!"); }
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(novaFrase)
+        });
+
+        if (res.ok) {
+            alert("✨ Frase Salva no MongoDB!");
+            location.reload();
+        } else {
+            const errorData = await res.json();
+            alert("Erro: " + errorData.error);
+        }
+    } catch (e) {
+        alert("Erro ao conectar ao servidor! Verifique sua conexão.");
+    }
 }
 
 async function fetchFrases() {
