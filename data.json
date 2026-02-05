@@ -1,0 +1,1054 @@
+[
+  {
+    "en": "I asked",
+    "pt": "perguntei.",
+    "blocks": [
+      "I asked"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "i asked"
+    }
+  },
+  {
+    "en": "I travel",
+    "pt": "Eu viajo",
+    "blocks": [
+      "I travel"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "i travel"
+    }
+  },
+  {
+    "en": "every day",
+    "pt": "todos os dias",
+    "blocks": [
+      "every day"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "every day"
+    }
+  },
+  {
+    "en": "I travel every day",
+    "pt": "Eu viajaria todos os dias",
+    "blocks": [
+      "I travel",
+      "every day"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "i travel every day"
+    }
+  },
+  {
+    "en": "do you work",
+    "pt": "Você trabalha!",
+    "blocks": [
+      "do you",
+      "work"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "do you work"
+    }
+  },
+  {
+    "en": "we would not car",
+    "pt": "não teríamos carro",
+    "blocks": [
+      "we would",
+      "not car"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "NEGATIVE",
+      "soundsLike": "we would not car"
+    }
+  },
+  {
+    "en": "to talk",
+    "pt": "conversar",
+    "blocks": [
+      "to talk"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "to talk"
+    }
+  },
+  {
+    "en": "to learn",
+    "pt": "para aprender.",
+    "blocks": [
+      "to learn"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "to learn"
+    }
+  },
+  {
+    "en": "to clean",
+    "pt": "limpar",
+    "blocks": [
+      "to clean"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "to clean"
+    }
+  },
+  {
+    "en": "talked",
+    "pt": "foi conversado",
+    "blocks": [
+      "talked"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "talked"
+    }
+  },
+  {
+    "en": "learned",
+    "pt": "aprendidas",
+    "blocks": [
+      "learned"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "learned"
+    }
+  },
+  {
+    "en": "cleaned",
+    "pt": "limpo",
+    "blocks": [
+      "cleaned"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "cleaned"
+    }
+  },
+  {
+    "en": "done",
+    "pt": "é feito",
+    "blocks": [
+      "done"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "done"
+    }
+  },
+  {
+    "en": "everything she did was recorded",
+    "pt": "tudo o que ela fez foi gravado",
+    "blocks": [
+      "everything she",
+      "did was",
+      "recorded"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "everything she did was recorded"
+    }
+  },
+  {
+    "en": "The car stopped at the traffic ligth",
+    "pt": "O carro parou no semáforo",
+    "blocks": [
+      "The car",
+      "stopped at",
+      "the traffic",
+      "ligth"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "The car stopped at the traffic ligth"
+    }
+  },
+  {
+    "en": "He hasn't cleanes that room ",
+    "pt": "Ele não limpou aquele quarto",
+    "blocks": [
+      "He hasn't",
+      "cleanes that",
+      "room",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "He hasn't cleanes that room "
+    }
+  },
+  {
+    "en": "he has done his homework",
+    "pt": "ele fez sua lição de casa",
+    "blocks": [
+      "he has",
+      "done his",
+      "homework"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "he has done his homework"
+    }
+  },
+  {
+    "en": "to walk",
+    "pt": "andar",
+    "blocks": [
+      "to walk"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "to walk"
+    }
+  },
+  {
+    "en": "walking",
+    "pt": "Caminhada",
+    "blocks": [
+      "walking"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "walking"
+    }
+  },
+  {
+    "en": "to dance",
+    "pt": "dançar",
+    "blocks": [
+      "to dance"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "to dance"
+    }
+  },
+  {
+    "en": "to laugh",
+    "pt": "rir",
+    "blocks": [
+      "to laugh"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "to laugh"
+    }
+  },
+  {
+    "en": "smile",
+    "pt": "sorriso",
+    "blocks": [
+      "smile"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "smile"
+    }
+  },
+  {
+    "en": "worked",
+    "pt": "trabalhado",
+    "blocks": [
+      "worked"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "worked"
+    }
+  },
+  {
+    "en": "helping",
+    "pt": "ajuda, socorro",
+    "blocks": [
+      "helping"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "helping"
+    }
+  },
+  {
+    "en": "working",
+    "pt": "trabalhando",
+    "blocks": [
+      "working"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "working"
+    }
+  },
+  {
+    "en": "I study english",
+    "pt": "Eu estudo inglês",
+    "blocks": [
+      "I study",
+      "english"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I study english"
+    }
+  },
+  {
+    "en": "I study english everyday",
+    "pt": "Eu estudo inglês todos os dias",
+    "blocks": [
+      "I study",
+      "english everyday"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I study english everyday"
+    }
+  },
+  {
+    "en": "you don't study english everyday ",
+    "pt": "você não estuda inglês todos os dias",
+    "blocks": [
+      "you don't",
+      "study english",
+      "everyday",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "you don't study english everyday "
+    }
+  },
+  {
+    "en": "I will study english everyday",
+    "pt": "Vou estudar inglês todos os dias",
+    "blocks": [
+      "I will",
+      "study english",
+      "everyday"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "FUTURE",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I will study english everyday"
+    }
+  },
+  {
+    "en": "you have to go",
+    "pt": "você precisa ir.",
+    "blocks": [
+      "you",
+      "have to",
+      "go"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "you have to go"
+    }
+  },
+  {
+    "en": "you have to go now",
+    "pt": "Vocês dois têm que ir, agora.",
+    "blocks": [
+      "you",
+      "have to",
+      "go now"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "you have to go now"
+    }
+  },
+  {
+    "en": "I study everyday at night",
+    "pt": "Eu estudo todos os dias à noite",
+    "blocks": [
+      "I study",
+      "everyday at",
+      "night"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I study everyday at night"
+    }
+  },
+  {
+    "en": "practice",
+    "pt": "praticar",
+    "blocks": [
+      "practice"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "pruaktess"
+    }
+  },
+  {
+    "en": "I practive english everyday",
+    "pt": "Pratico inglês todos os dias",
+    "blocks": [
+      "I practive",
+      "english everyday"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I practive english everyday"
+    }
+  },
+  {
+    "en": "want to ",
+    "pt": "deseja",
+    "blocks": [
+      "want to",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "want to "
+    }
+  },
+  {
+    "en": "I want to study",
+    "pt": "Eu quero estudar isso.",
+    "blocks": [
+      "I",
+      "want to",
+      "study"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I want to study"
+    }
+  },
+  {
+    "en": "I don't want to study",
+    "pt": "Eu não quero estudar mais.",
+    "blocks": [
+      "I don't",
+      "want to",
+      "study"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't want to study"
+    }
+  },
+  {
+    "en": "It is easy to sit up and take notice, what's difficult is getting up and taking action.",
+    "pt": "É fácil sentar-se e tomar conhecimento, o que é difícil é levantar-se e agir.",
+    "blocks": [
+      "It is",
+      "easy to",
+      "sit up",
+      "and take",
+      "notice, what's",
+      "difficult is",
+      "getting up",
+      "and taking",
+      "action."
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "It is easy to sit up and take notice, what's difficult is getting up and taking action."
+    }
+  },
+  {
+    "en": "i don't know why",
+    "pt": "Não sei por que",
+    "blocks": [
+      "i don't",
+      "know why"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "i don't know why"
+    }
+  },
+  {
+    "en": "i don't know why everyone is doing it",
+    "pt": "eu não sei por que todo mundo está fazendo isso.",
+    "blocks": [
+      "i don't",
+      "know why",
+      "everyone is",
+      "doing it"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "i don't know why everyone is doing it"
+    }
+  },
+  {
+    "en": "I don't know why she at my home ",
+    "pt": "Eu não sei por que ela na minha casa",
+    "blocks": [
+      "I don't",
+      "know why",
+      "she at",
+      "my home",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't know why she at my home "
+    }
+  },
+  {
+    "en": "i don't know why she is at my home ",
+    "pt": "eu não sei por que ela está na minha casa.",
+    "blocks": [
+      "i don't",
+      "know why",
+      "she is",
+      "at my",
+      "home",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "i don't know why she is at my home "
+    }
+  },
+  {
+    "en": "she was with me ",
+    "pt": "Ela estava comigo",
+    "blocks": [
+      "she was",
+      "with me",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "she was with me "
+    }
+  },
+  {
+    "en": "at the restaurant ",
+    "pt": "No restaurante.",
+    "blocks": [
+      "at the",
+      "restaurant",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "at the restaurant "
+    }
+  },
+  {
+    "en": "someone was at the restaurant",
+    "pt": "alguém estava no restaurante",
+    "blocks": [
+      "someone was",
+      "at the",
+      "restaurant"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "someone was at the restaurant"
+    }
+  },
+  {
+    "en": "someone was at the restaurant last night",
+    "pt": "alguém estava no restaurante ontem à noite",
+    "blocks": [
+      "someone was",
+      "at the",
+      "restaurant last",
+      "night"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "someone was at the restaurant last night"
+    }
+  },
+  {
+    "en": "someone was at my home ",
+    "pt": "alguém estava na minha casa",
+    "blocks": [
+      "someone was",
+      "at my",
+      "home",
+      ""
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "someone was at my home "
+    }
+  },
+  {
+    "en": "she was at my apartment last night",
+    "pt": "ela estava no meu apartamento ontem à noite",
+    "blocks": [
+      "she was",
+      "at my",
+      "apartment last",
+      "night"
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "she was at my apartment last night"
+    }
+  },
+  {
+    "en": "Build something out of LEGO.",
+    "pt": "Construa algo com LEGO.",
+    "blocks": [
+      "Build something",
+      "out of",
+      "LEGO."
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "Build something out of LEGO."
+    }
+  },
+  {
+    "en": "Good things come to those who wait.",
+    "pt": "Quem espera sempre alcança.",
+    "blocks": [
+      "Good things",
+      "come to",
+      "those who",
+      "wait."
+    ],
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "Good things come to those who wait."
+    }
+  },
+  {
+    "en": "If you get stuck, try doing the opposite of what the solution requires.",
+    "pt": "Se você ficar preso, tente fazer o oposto do que a solução exige.",
+    "blocks": [
+      "If you",
+      "get stuck,",
+      "try doing",
+      "the opposite",
+      "of what",
+      "the solution",
+      "requires."
+    ],
+    "meta": {
+      "level": "INTERMEDIATE",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "If you get stuck, try doing the opposite of what the solution requires."
+    }
+  },
+  {
+    "en": "I have to get some help.",
+    "pt": "Preciso de ajuda.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I have to get some help."
+    }
+  },
+  {
+    "en": "What do you want to do?",
+    "pt": "O que você quer fazer? ",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "QUESTION",
+      "soundsLike": "What do you want to do?"
+    }
+  },
+  {
+    "en": "I don't know what to say.",
+    "pt": "Não sei o que dizer.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't know what to say."
+    }
+  },
+  {
+    "en": "Did you take the time?",
+    "pt": "Você teve tempo?",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "QUESTION",
+      "soundsLike": "Did you take the time?"
+    }
+  },
+  {
+    "en": "I'm going to tell you why.",
+    "pt": "eu vou contar para você",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "FUTURE",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I'm going to tell you why."
+    }
+  },
+  {
+    "en": "Can you give me a hand?",
+    "pt": "Pode me ajudar?",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "QUESTION",
+      "soundsLike": "Can you give me a hand?"
+    }
+  },
+  {
+    "en": "It would be good for us.",
+    "pt": "Seria bom para ela.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "It would be good for us."
+    }
+  },
+  {
+    "en": "I think you should go now.",
+    "pt": "Eu acho que você deveria ir.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I think you should go now."
+    }
+  },
+  {
+    "en": "There is a new way to do it.",
+    "pt": "Há uma nova maneira de fazer isso.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "There is a new way to do it."
+    }
+  },
+  {
+    "en": "I just need more time.",
+    "pt": "Preciso de mais tempo.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I just need more time."
+    }
+  },
+  {
+    "en": "I don't like",
+    "pt": "Eu não gosto",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't like"
+    }
+  },
+  {
+    "en": "I don't like to travel",
+    "pt": "Não gosto de viajar",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't like to travel"
+    }
+  },
+  {
+    "en": "I don't want to travel now",
+    "pt": "Eu não quero viajar agora",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't want to travel now"
+    }
+  },
+  {
+    "en": "You haver to practive english ",
+    "pt": "Você ter para praticar inglês",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "You haver to practive english "
+    }
+  },
+  {
+    "en": "You have to practive english everyday",
+    "pt": "Você tem que praticar inglês todos os dias",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "You have to practive english everyday"
+    }
+  },
+  {
+    "en": "I don't want to eat now",
+    "pt": "Eu não quero comer.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't want to eat now"
+    }
+  },
+  {
+    "en": "I don't want to eat at the moment ",
+    "pt": "Eu não quero comer no momento",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I don't want to eat at the moment "
+    }
+  },
+  {
+    "en": "I think you should go now.",
+    "pt": "Eu acho que você deveria ir.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I think you should go now."
+    }
+  },
+  {
+    "en": "There is a new way to do it.",
+    "pt": "Há uma nova maneira de fazer isso.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "There is a new way to do it."
+    }
+  },
+  {
+    "en": "I just need more time.",
+    "pt": "Preciso de mais tempo.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I just need more time."
+    }
+  },
+  {
+    "en": "She doesn't like to wait.",
+    "pt": "Ela não gosta de esperar.&amp;nbsp;",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "She doesn't like to wait."
+    }
+  },
+  {
+    "en": "Make sure you take it.",
+    "pt": "Certifique-se de pegá-lo.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "Make sure you take it."
+    }
+  },
+  {
+    "en": "Tell me more about it.",
+    "pt": "Conte-me mais sobre isso.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "Tell me more about it."
+    }
+  },
+  {
+    "en": "I thought you knew it.",
+    "pt": "Pensei que soubesse.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I thought you knew it."
+    }
+  },
+  {
+    "en": "It's not as hard as it looks.",
+    "pt": "Não é tão difícil quanto parece.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "NEGATIVE",
+      "soundsLike": "It's not as hard as it looks."
+    }
+  },
+  {
+    "en": "We need to find a way.",
+    "pt": "Precisamos encontrar uma maneira",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "We need to find a way."
+    }
+  },
+  {
+    "en": "I've been thinking about you.",
+    "pt": "Eu fiquei pensando sobre",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I've been thinking about you."
+    }
+  },
+  {
+    "en": "Look at what you did.",
+    "pt": "Olha o que você fez.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PAST",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "Look at what you did."
+    }
+  },
+  {
+    "en": "I want to take to someone",
+    "pt": "Eu quero levar para alguém",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I want to take to someone"
+    }
+  },
+  {
+    "en": "I would like eat",
+    "pt": "Eu gostaria de comer.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I would like eat"
+    }
+  },
+  {
+    "en": "I would like to eat here",
+    "pt": "Eu gostaria de comer.",
+    "meta": {
+      "level": "BEGINNER",
+      "tense": "PRESENT",
+      "type": "AFFIRMATIVE",
+      "soundsLike": "I would like to eat here"
+    }
+  }
+]

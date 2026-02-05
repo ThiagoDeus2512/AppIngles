@@ -1,0 +1,372 @@
+/* --- VARIÁVEIS GLOBAIS --- */
+:root {
+    --primary: #1a73e8;
+    --success: #00ff88;
+    --error: #ff4444;
+    --bg: #0a0a0b;
+    --card: #151515;
+    --pronoun: #4facfe;
+    --verb: #00ff88;
+    --adjective: #ffeb3b;
+    --auxiliary: #bf94ff;
+    --text-muted: #888;
+    --connected-speech: #ff79c6;
+    /* ESTILOS 80/20 */
+    --pareto: #ffcc00;
+    --pareto-glow: rgba(255, 204, 0, 0.3);
+}
+
+/* --- RESET & BASE --- */
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* --- HEADER & STATUS DE PROGRESSO --- */
+.header-status {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #141414;
+    padding: 12px 25px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid #222;
+}
+
+.progress-container {
+    flex-grow: 1;
+    height: 10px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progressBar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    transition: 0.5s;
+    width: 0%;
+}
+
+/* --- CONTAINER PRINCIPAL --- */
+.container {
+    background: var(--card);
+    padding: 40px;
+    border-radius: 28px;
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    border: 1px solid #252525;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+/* Efeito 80/20 Ativo */
+.container.pareto-active {
+    border-color: var(--pareto);
+    box-shadow: 0 0 25px var(--pareto-glow);
+}
+
+/* --- BLOCOS DE TEXTO (CHUNKS) --- */
+.block-container {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.chunk {
+    padding: 18px 28px;
+    border-radius: 18px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: #1e1e1e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 4px solid #444;
+    /* Cor base se o JS falhar */
+}
+
+.chunk:hover {
+    transform: translateY(-3px);
+    background: #252525;
+}
+
+/* --- SISTEMA DE PRONÚNCIA & REVELAÇÃO --- */
+#pronunciationDisplay {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px 25px;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    color: #aaa;
+    margin-bottom: 25px;
+    display: inline-block;
+    border: 1px dashed #333;
+    min-width: 250px;
+}
+
+.connected-match {
+    color: var(--connected-speech);
+    font-weight: 900;
+    text-shadow: 0 0 8px rgba(255, 121, 198, 0.3);
+}
+
+/* NOVO: Estilo da Tradução Revelada */
+.translation-hint {
+    margin-top: 12px;
+    padding-top: 10px;
+    color: var(--success);
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-top: 1px solid #333;
+    animation: revealText 0.4s ease-out forwards;
+}
+
+@keyframes revealText {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#heardText {
+    min-height: 1.5em;
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* --- BADGES --- */
+.badge {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin: 0 5px;
+    display: inline-block;
+    background: #222;
+}
+
+.badge-pareto {
+    background: var(--pareto) !important;
+    color: black !important;
+    animation: pulse-pareto 2s infinite ease-in-out;
+}
+
+@keyframes pulse-pareto {
+
+    0%,
+    100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+/* --- BOTÕES DE NÍVEL --- */
+.level-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.level-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    background: #1a1a1a;
+    color: #666;
+    cursor: pointer;
+    border: 1px solid #333;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.level-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* --- INPUTS --- */
+input {
+    background: #000;
+    color: white;
+    border: 2px solid #333;
+    padding: 18px;
+    width: 100%;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 1.2rem;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+input:focus {
+    border-color: var(--primary);
+    outline: none;
+    background: #050505;
+}
+
+.btn-mic {
+    background: #ff2d55;
+    color: white;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    margin: 15px 0;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-mic:hover {
+    background: #ff4466;
+}
+
+.btn-mic:active {
+    transform: scale(0.98);
+}
+
+/* --- ANIMAÇÕES DE VOZ (WAVE) --- */
+.voice-wave {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    height: 25px;
+    margin-bottom: 15px;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.voice-wave.active {
+    opacity: 1;
+}
+
+.bar {
+    width: 4px;
+    background: var(--success);
+    border-radius: 4px;
+    animation: wave 0.6s infinite ease-in-out;
+}
+
+.bar:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.bar:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        height: 8px;
+    }
+
+    50% {
+        height: 25px;
+    }
+}
+
+/* --- FEEDBACK DE TEXTO --- */
+.word-correct {
+    color: var(--success);
+}
+
+.word-error {
+    color: var(--error);
+    text-decoration: line-through;
+}
+
+.word-missed {
+    color: var(--primary);
+    font-style: italic;
+}
+
+/* --- XP FLUTUANTE --- */
+.xp-float {
+    position: fixed;
+    font-weight: 900;
+    font-size: 2.5rem;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.xp-normal {
+    color: var(--success);
+}
+
+.xp-pareto {
+    color: var(--pareto);
+    text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
+}
+
+.animate-xp {
+    animation: floatUp 1.2s forwards ease-out;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 0);
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -150px);
+    }
+}
+
+/* --- SHAKE (ERRO) --- */
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-10px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(10px);
+    }
+}
