@@ -203,13 +203,21 @@ function finalizarSucesso(item, baseXP, isVoz) {
 
 // --- RENDERIZAÇÃO ---
 function render() {
-    const filtradas = frases.filter(f => f.meta.level === nivelAtivo);
+    // PROTEÇÃO: Garante que 'frases' seja sempre um array antes de filtrar
+    const listaParaFiltrar = Array.isArray(frases) ? frases : [];
+    const filtradas = listaParaFiltrar.filter(f => f.meta && f.meta.level === nivelAtivo);
+
     document.getElementById('xpDisplay').innerText = xp;
     updateAnalytics();
     renderSRS();
+
     let item;
-    if (filaSRS.length > 0 && Math.random() < 0.4) item = filaSRS[Math.floor(Math.random() * filaSRS.length)];
-    else item = filtradas[indexAtual % filtradas.length] || defaultFrases()[0];
+    if (filaSRS.length > 0 && Math.random() < 0.4) {
+        item = filaSRS[Math.floor(Math.random() * filaSRS.length)];
+    } else {
+        item = filtradas[indexAtual % filtradas.length] || defaultFrases()[0];
+    }
+
     if (!item) return;
 
     const paretoActive = isParetoPhrase(item.en);
@@ -273,7 +281,8 @@ function handleEnter(e) {
 
 function getCurrentItem() {
     const txt = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
-    return frases.find(f => f.en === txt) || filaSRS.find(f => f.en === txt);
+    const listaParaBusca = Array.isArray(frases) ? frases : [];
+    return listaParaBusca.find(f => f.en === txt) || filaSRS.find(f => f.en === txt);
 }
 
 function proximaFrase() {
@@ -307,7 +316,8 @@ function setNivel(lvl) {
 
 function updateAnalytics() {
     let p = 0, v = 0, a = 0;
-    frases.forEach(f => {
+    const listaAnalytics = Array.isArray(frases) ? frases : [];
+    listaAnalytics.forEach(f => {
         const words = f.en.toLowerCase().split(' ');
         words.forEach(w => {
             if (LIB.pronomes.includes(w)) p++;
@@ -387,9 +397,19 @@ async function saveNewPhrase() {
 async function fetchFrases() {
     try {
         const res = await fetch(API_URL);
-        frases = await res.json();
-        if (!frases || frases.length === 0) frases = defaultFrases();
-    } catch (e) { frases = defaultFrases(); }
+        const data = await res.json();
+
+        // CORREÇÃO CRÍTICA: Verifica se os dados recebidos são de fato um Array
+        if (Array.isArray(data)) {
+            frases = data;
+        } else {
+            console.error("Servidor não retornou uma lista. Usando padrão.");
+            frases = defaultFrases();
+        }
+    } catch (e) {
+        console.error("Erro na busca:", e);
+        frases = defaultFrases();
+    }
     render();
 }
 

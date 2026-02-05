@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- CONFIGURAÇÃO DO MONGODB ---
+// Prioriza a variável do Render (process.env.MONGO_URI) para funcionar no celular
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Admin:Familia2512@aula.o5oekbk.mongodb.net/?appName=Aula";
 
 mongoose.connect(MONGO_URI)
@@ -33,7 +34,12 @@ const FraseSchema = new mongoose.Schema({
 const Frase = mongoose.model('Frase', FraseSchema);
 
 // --- MIDDLEWARE ---
-app.use(cors());
+// Configuração de CORS reforçada para aceitar conexões de celulares/browsers móveis
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.static(__dirname));
 
@@ -44,6 +50,7 @@ app.get('/api/frases', async (req, res) => {
         const frases = await Frase.find().sort({ createdAt: -1 });
         res.json(frases);
     } catch (err) {
+        console.error("Erro GET /api/frases:", err);
         res.status(500).json({ error: "Erro ao buscar frases no banco." });
     }
 });
@@ -61,6 +68,7 @@ app.post('/api/frases', async (req, res) => {
         console.log(`Level: ${meta.level} | Pareto: ${isPareto ? '🔥 SIM' : 'NÃO'}`);
         res.status(201).json(novaFrase);
     } catch (err) {
+        console.error("Erro POST /api/frases:", err);
         res.status(500).json({ error: "Erro ao salvar no MongoDB." });
     }
 });
@@ -94,12 +102,11 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // --- CORREÇÃO FINAL PARA NODE V24 ---
-// Em vez de strings com '*', usamos Regex pura (/.*/) 
-// Isso captura qualquer rota sem gerar erro de parâmetro.
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Escutando em 0.0.0.0 para garantir que o Render consiga rotear o tráfego externo (celular)
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n\x1b[32m================================================`);
     console.log(`🚀 LIFE ENGLISH ULTRA ENGINE ONLINE (CLOUD MODE)`);
