@@ -3,7 +3,7 @@
  * Versão: Cloud Optimized (MongoDB + Render)
  */
 
-// AJUSTE PARA NUVEM: Detecta automaticamente se está no PC ou na Web
+// AJUSTE PARA NUVEM
 const BASE_URL = window.location.origin;
 const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:3000/api/frases"
@@ -19,7 +19,6 @@ let timerFunc;
 let timeoutTraducao;
 let filaSRS = JSON.parse(localStorage.getItem('dev_srs_queue_v2')) || [];
 
-// --- CONSTANTES & BIBLIOTECAS ---
 const PARETO_LIST = [
     'get', 'have', 'take', 'do', 'make', 'go', 'can', 'will', 'would', 'should',
     'want', 'need', 'like', 'think', 'know', 'say', 'tell', 'look', 'come', 'give',
@@ -52,7 +51,6 @@ const TEMPLATES_IA = {
     ]
 };
 
-// --- ALGORITMO DE DISTÂNCIA ---
 function calcularDistancia(a, b) {
     const matrix = [];
     for (let i = 0; i <= b.length; i++) matrix[i] = [i];
@@ -66,7 +64,6 @@ function calcularDistancia(a, b) {
     return matrix[b.length][a.length];
 }
 
-// --- FUNÇÕES IA ---
 function sugerirFrasesIA() {
     const tema = prompt("Escolha um tema: trabalho, viagem ou dia_a_dia")?.toLowerCase();
     if (!tema) return;
@@ -89,7 +86,6 @@ async function gerarFraseViaAPI() {
     } catch (e) { alert("Erro ao buscar frase externa."); }
 }
 
-// --- LÓGICA COGNITIVA & PARETO ---
 function isParetoPhrase(text) {
     const words = text.toLowerCase().split(/\s+/);
     const matches = words.filter(word => PARETO_LIST.includes(word.replace(/[?.,!]/g, "")));
@@ -107,7 +103,6 @@ function revelarResposta(item) {
     }
 }
 
-// --- TIMER ADAPTATIVO ---
 function startTimer() {
     clearInterval(timerFunc);
     let penalty = Math.floor(xp / 3000);
@@ -128,7 +123,6 @@ function startTimer() {
     }
 }
 
-// --- SISTEMA SRS ---
 function registrarErro() {
     const item = getCurrentItem();
     if (!item) return;
@@ -154,7 +148,6 @@ function renderSRS() {
     });
 }
 
-// --- FEEDBACK DE VOZ ---
 function gerarFeedbackShadowing(original, falado) {
     const limpar = (t) => t.toLowerCase().replace(/[?.,!]/g, "").trim();
     const origArr = limpar(original).split(/\s+/);
@@ -170,19 +163,39 @@ function gerarFeedbackShadowing(original, falado) {
     return { html, precisao: (scoreTotal / origArr.length) * 100 };
 }
 
+// --- FUNÇÃO CORRIGIDA: TESTAR PRONÚNCIA ---
 function testarPronuncia() {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Speech) return alert("Voz não suportada.");
     const rec = new Speech(); rec.lang = 'en-US';
-    rec.onstart = () => { document.getElementById('wave').classList.add('active'); document.getElementById('heardText').innerText = "Ouvindo..."; };
+
+    rec.onstart = () => {
+        document.getElementById('wave').classList.add('active');
+        document.getElementById('heardText').innerText = "Ouvindo...";
+    };
+
     rec.onend = () => document.getElementById('wave').classList.remove('active');
+
     rec.onresult = (e) => {
         const talk = e.results[0][0].transcript;
         const textoOriginal = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
         const feedback = gerarFeedbackShadowing(textoOriginal, talk);
-        document.getElementById('heardText').innerHTML = `<div style="font-size: 0.8rem; color: #888;">Detected: "${talk}"</div><div>${feedback.html}</div><div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}">PRECISION: ${Math.round(feedback.precisao)}%</div>`;
-        if (feedback.precisao >= 70) finalizarSucesso(getCurrentItem(), Math.floor(feedback.precisao), true);
-        else { triggerErrorEffect(); registrarErro(); }
+
+        document.getElementById('heardText').innerHTML = `
+            <div style="font-size: 0.8rem; color: #888;">Detected: "${talk}"</div>
+            <div>${feedback.html}</div>
+            <div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}">
+                PRECISION: ${Math.round(feedback.precisao)}%
+            </div>`;
+
+        // CORREÇÃO: Pega o item atual e finaliza se a precisão for boa
+        const item = getCurrentItem();
+        if (feedback.precisao >= 70) {
+            finalizarSucesso(item, Math.floor(feedback.precisao), true);
+        } else {
+            triggerErrorEffect();
+            registrarErro();
+        }
     };
     rec.start();
 }
@@ -196,14 +209,16 @@ function finalizarSucesso(item, baseXP, isVoz) {
     localStorage.setItem('dev_xp', xp);
     document.getElementById('xpDisplay').innerText = xp;
     showXpBonus(bonus, paretoActive);
-    filaSRS = filaSRS.filter(x => x.en !== item.en);
-    localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
+
+    if (item) {
+        filaSRS = filaSRS.filter(x => x.en !== item.en);
+        localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
+    }
+
     setTimeout(proximaFrase, 2800);
 }
 
-// --- RENDERIZAÇÃO ---
 function render() {
-    // PROTEÇÃO: Garante que 'frases' seja sempre um array antes de filtrar
     const listaParaFiltrar = Array.isArray(frases) ? frases : [];
     const filtradas = listaParaFiltrar.filter(f => f.meta && f.meta.level === nivelAtivo);
 
@@ -241,7 +256,6 @@ function render() {
     startTimer();
 }
 
-// --- FUNÇÕES DE APOIO ---
 function gerarPronunciaDinamica(texto, originalSound) {
     const REGRAS = [{ r: /\bdid you\b/gi, s: "did-ju" }, { r: /\bwant to\b/gi, s: "wanna" }, { r: /\bgoing to\b/gi, s: "gonna" }, { r: /\bwhat do you\b/gi, s: "whatcha" }];
     let base = (originalSound && originalSound !== texto) ? originalSound : texto.toLowerCase();
@@ -282,6 +296,7 @@ function handleEnter(e) {
 function getCurrentItem() {
     const txt = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
     const listaParaBusca = Array.isArray(frases) ? frases : [];
+    // Busca na lista do banco ou na lista de erros (SRS)
     return listaParaBusca.find(f => f.en === txt) || filaSRS.find(f => f.en === txt);
 }
 
@@ -351,7 +366,6 @@ async function analisarDinamico() {
     }, 800);
 }
 
-// FUNÇÃO DE SALVAMENTO CORRIGIDA PARA CELULAR E RENDER
 async function saveNewPhrase() {
     const en = document.getElementById('newEn').value;
     const pt = document.getElementById('newPt').value;
@@ -398,16 +412,12 @@ async function fetchFrases() {
     try {
         const res = await fetch(API_URL);
         const data = await res.json();
-
-        // CORREÇÃO CRÍTICA: Verifica se os dados recebidos são de fato um Array
         if (Array.isArray(data)) {
             frases = data;
         } else {
-            console.error("Servidor não retornou uma lista. Usando padrão.");
             frases = defaultFrases();
         }
     } catch (e) {
-        console.error("Erro na busca:", e);
         frases = defaultFrases();
     }
     render();
