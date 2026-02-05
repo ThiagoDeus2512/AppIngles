@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' http://localhost:3000 https://api.mymemory.translated.net https://api.adviceslip.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3000 https://api.mymemory.translated.net https://api.adviceslip.com;">
+    
     <title>Life English ULTRA - 80/20 Pareto Edition</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -17,7 +18,7 @@
         <div class="progress-container">
             <div id="progressBar"></div>
         </div>
-        <div style="font-size: 0.9rem; font-weight: 900; color: var(--success); min-width: 80px;">
+        <div class="xp-label">
             XP <span id="xpDisplay">0</span>
         </div>
     </div>
@@ -63,26 +64,22 @@
         </button>
     </div>
 
-    <div class="admin-panel"
-        style="background: var(--card); padding: 30px; border-radius: 20px; margin-top: 30px; width: 90%; max-width: 800px; border: 1px solid #252525;">
-        <h3
-            style="margin:0 0 25px 0; font-size: 1rem; color: var(--primary); letter-spacing: 1.5px; font-weight: 900; text-align: center;">
-            📊 DATA ANALYTICS (80/20)
+    <div class="admin-panel" style="background: var(--card); padding: 30px; border-radius: 20px; margin-top: 30px; width: 90%; max-width: 800px; border: 1px solid #252525;">
+        
+        <h3 style="margin:0 0 25px 0; font-size: 1rem; color: var(--primary); letter-spacing: 1.5px; font-weight: 900; text-align: center;">
+            📊 DATA ANALYTICS (80/20 SYSTEM)
         </h3>
 
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-            <div class="stat-card"
-                style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--pronoun)">
+            <div class="stat-card" style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--pronoun)">
                 <div style="font-size: 0.7rem; color: #555; font-weight: 800;">PRONOMES</div>
                 <div id="count-pronouns" style="font-size: 1.5rem; font-weight: 900;">0</div>
             </div>
-            <div class="stat-card"
-                style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--verb)">
+            <div class="stat-card" style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--verb)">
                 <div style="font-size: 0.7rem; color: #555; font-weight: 800;">MOTORES</div>
                 <div id="count-verbs" style="font-size: 1.5rem; font-weight: 900;">0</div>
             </div>
-            <div class="stat-card"
-                style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--adjective)">
+            <div class="stat-card" style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--adjective)">
                 <div style="font-size: 0.7rem; color: #555; font-weight: 800;">ADJETIVOS</div>
                 <div id="count-adjectives" style="font-size: 1.5rem; font-weight: 900;">0</div>
             </div>
@@ -90,10 +87,16 @@
 
         <hr style="border: 0; border-top: 1px solid #222; margin: 35px 0;">
 
-        <button class="btn-api" onclick="gerarFraseViaAPI()"
-            style="width: 100%; padding: 12px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 10px; cursor: pointer; margin-bottom: 20px; font-weight: bold; font-size: 0.7rem;">
-            🎲 GERAR FRASE ALEATÓRIA (API)
-        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <button class="btn-api" onclick="gerarFraseViaAPI()"
+                style="padding: 12px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.7rem;">
+                🎲 DICA ALEATÓRIA (EXTERNAL)
+            </button>
+            <button class="btn-api" onclick="sugerirFrasesIA()"
+                style="padding: 12px; background: #34a853; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.7rem;">
+                🤖 CONTEXTO IA (TEMÁTICO)
+            </button>
+        </div>
 
         <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
             <span id="tag-PAST" class="badge">PASSADO</span>
@@ -101,36 +104,32 @@
             <span id="tag-FUTURE" class="badge">FUTURO</span>
         </div>
 
-        <input type="text" id="newEn" placeholder="Frase em Inglês" oninput="analisarDinamico()"
-            style="margin-bottom: 10px;">
+        <input type="text" id="newEn" placeholder="Frase em inglês..." oninput="analisarDinamico()" style="margin-bottom: 10px;">
 
-        <div id="translationPreview"
-            style="font-size: 0.8rem; color: var(--primary); margin-bottom: 10px; text-align: center; font-weight: bold;">
+        <div id="translationPreview" style="font-size: 0.8rem; color: var(--primary); margin-bottom: 10px; text-align: center; font-weight: bold;">
             Aguardando entrada...
         </div>
 
-        <input type="text" id="newPt" placeholder="Tradução para o Português" style="margin-bottom: 10px;">
-        <input type="text" id="manualSounds" placeholder="Dica de som manual (deixe vazio para automático)">
+        <input type="text" id="newPt" placeholder="Tradução em Português" style="margin-bottom: 10px;">
+        <input type="text" id="manualSounds" placeholder="Pronúncia Sugerida (Ex: ai uana lêrn)">
 
-        <select id="newLevel"
-            style="width: 100%; padding: 15px; background: #000; color: #fff; border: 2px solid #333; border-radius: 16px; margin-top: 10px; font-weight: bold;">
+        <select id="newLevel" style="width: 100%; padding: 15px; background: #000; color: #fff; border: 2px solid #333; border-radius: 16px; margin-top: 10px; font-weight: bold;">
             <option value="BEGINNER">Nível: Beginner</option>
             <option value="INTERMEDIATE">Nível: Intermediate</option>
             <option value="ADVANCED">Nível: Advanced</option>
         </select>
 
         <button class="btn-mic" style="background: var(--primary); margin-top: 25px;" onclick="saveNewPhrase()">
-            SALVAR NA NUVEM ☁️
+            SALVAR NO BANCO DE DADOS ☁️
         </button>
     </div>
 
     <div class="review-panel" id="reviewPanel"
-        style="background: var(--card); padding: 20px; border-radius: 20px; margin-top: 20px; width: 90%; max-width: 800px; border: 1px solid #333;">
-        <span
-            style="color: var(--error); font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+        style="background: var(--card); padding: 20px; border-radius: 20px; margin-top: 20px; width: 90%; max-width: 800px; border: 1px solid #333; display: none;">
+        <span style="color: var(--error); font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
             ⚠️ REVISÃO ATIVA (FALHAS RECENTES)
         </span>
-        <div id="reviewList" style="margin-top: 15px;"></div>
+        <div id="reviewList" style="margin-top: 15px; display: grid; gap: 10px;"></div>
     </div>
 
     <script src="script.js"></script>

@@ -1,4 +1,13 @@
-const API_URL = "http://localhost:3000/api/frases";
+/**
+ * LIFE ENGLISH - SCRIPT COMPLETO 
+ * (Mantendo Geradores IA, Smart Chunking e Integração API Adaptativa)
+ */
+
+// AJUSTE PARA NUVEM: Detecta se está no localhost ou na internet (Render)
+const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:3000/api/frases"
+    : "/api/frases";
+
 let frases = [];
 let xp = parseInt(localStorage.getItem('dev_xp')) || 0;
 let indexAtual = 0;
@@ -9,18 +18,13 @@ let timerFunc;
 let timeoutTraducao;
 let filaSRS = JSON.parse(localStorage.getItem('dev_srs_queue_v2')) || [];
 
+// --- CONSTANTES & BIBLIOTECAS ---
 const PARETO_LIST = [
     'get', 'have', 'take', 'do', 'make', 'go', 'can', 'will', 'would', 'should',
     'want', 'need', 'like', 'think', 'know', 'say', 'tell', 'look', 'come', 'give',
     'time', 'way', 'new', 'good', 'some', 'about', 'just', 'more', 'then', 'now',
     'could', 'where', 'how', 'who', 'why', 'help', 'sorry', 'please', 'thanks'
 ];
-
-function isParetoPhrase(text) {
-    const words = text.toLowerCase().split(/\s+/);
-    const matches = words.filter(word => PARETO_LIST.includes(word.replace(/[?.,!]/g, "")));
-    return matches.length >= 2;
-}
 
 const LIB = {
     pronomes: ['i', 'you', 'he', 'she', 'it', 'we', 'they', 'my', 'your', 'his', 'her', 'this', 'that'],
@@ -29,129 +33,109 @@ const LIB = {
     adjetivos: ['good', 'bad', 'happy', 'sad', 'beautiful', 'big', 'small', 'hot', 'cold', 'new', 'old', 'easy', 'hard', 'important', 'ready']
 };
 
-// --- TÉCNICA: REVELAR RESPOSTA (NOVO) ---
+const TEMPLATES_IA = {
+    trabalho: [
+        { en: "I have to finish this now", pt: "Eu tenho que terminar isso agora", sounds: "ai häv-tuh finish dis nau" },
+        { en: "Can you help me with the meeting?", pt: "Você pode me ajudar com a reunião?", sounds: "quên-ju help-mi uid-da mitin" },
+        { en: "I will send the email today", pt: "Eu vou enviar o e-mail hoje", sounds: "ai uil sênd da imêil tudêi" }
+    ],
+    viagem: [
+        { en: "Where can I get a taxi?", pt: "Onde posso conseguir um táxi?", sounds: "uêr quên-ai guet-â téksi" },
+        { en: "I need to find my way back", pt: "Eu preciso encontrar meu caminho de volta", sounds: "ai nid-tuh faind-mai uêi bék" },
+        { en: "Is it far from here?", pt: "É longe daqui?", sounds: "iz it fár frâm hir" }
+    ],
+    dia_a_dia: [
+        { en: "What do you want to eat?", pt: "O que você quer comer?", sounds: "uatcha uana it" },
+        { en: "I think it is going to rain", pt: "Eu acho que vai chover", sounds: "ai t-hink its gona rêin" },
+        { en: "I am just looking, thanks", pt: "Estou apenas olhando, obrigado", sounds: "ai âm djast lukin tênks" }
+    ]
+};
+
+// --- ALGORITMO DE DISTÂNCIA ---
+function calcularDistancia(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+            else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+// --- FUNÇÕES IA ---
+function sugerirFrasesIA() {
+    const tema = prompt("Escolha um tema: trabalho, viagem ou dia_a_dia")?.toLowerCase();
+    if (!tema) return;
+    const lista = TEMPLATES_IA[tema] || TEMPLATES_IA.dia_a_dia;
+    const sugestao = lista[Math.floor(Math.random() * lista.length)];
+    document.getElementById('newEn').value = sugestao.en;
+    document.getElementById('newPt').value = sugestao.pt;
+    document.getElementById('manualSounds').value = sugestao.sounds;
+    analisarDinamico();
+    alert("🤖 Sugestão IA carregada! Revise e clique em SALVAR.");
+}
+
+async function gerarFraseViaAPI() {
+    try {
+        const res = await fetch('https://api.adviceslip.com/advice');
+        const data = await res.json();
+        document.getElementById('newEn').value = data.slip.advice;
+        analisarDinamico();
+        alert("🎲 Nova frase aleatória carregada!");
+    } catch (e) { alert("Erro ao buscar frase externa."); }
+}
+
+// --- LÓGICA COGNITIVA & PARETO ---
+function isParetoPhrase(text) {
+    const words = text.toLowerCase().split(/\s+/);
+    const matches = words.filter(word => PARETO_LIST.includes(word.replace(/[?.,!]/g, "")));
+    return matches.length >= 2;
+}
+
 function revelarResposta(item) {
     const displayPronuncia = document.getElementById('pronunciationDisplay');
-    // Mantém a dica de som e adiciona a tradução em destaque
-    displayPronuncia.innerHTML += `
-        <div style="margin-top: 10px; color: #00ff88; font-weight: bold; font-size: 1.1rem; border-top: 1px solid #333; pt-2">
-            🇧🇷 ${item.pt}
-        </div>
-    `;
-}
-
-// --- TÉCNICA: PRONÚNCIA DINÂMICA ---
-const REGRAS_PRONUNCIA = [
-    { r: /\bdid you\b/gi, s: "did-ju" },
-    { r: /\bwant to\b/gi, s: "wanna" },
-    { r: /\bgoing to\b/gi, s: "gonna" },
-    { r: /\bwhat do you\b/gi, s: "whatcha" }
-];
-
-function gerarPronunciaDinamica(texto, originalSound) {
-    let base = (originalSound && originalSound !== texto) ? originalSound : texto.toLowerCase();
-    let temp = base;
-    REGRAS_PRONUNCIA.forEach(regra => {
-        if (regra.r.test(temp)) {
-            temp = temp.replace(regra.r, `<span class="connected-match">${regra.s}</span>`);
-        }
-    });
-    return `🗣️ Som: ${temp}`;
-}
-
-// --- TÉCNICA: SHADOWING VISUAL ---
-function gerarFeedbackShadowing(original, falado) {
-    const origArr = original.toLowerCase().replace(/[?.,!]/g, "").split(/\s+/);
-    const falArr = falado.toLowerCase().replace(/[?.,!]/g, "").split(/\s+/);
-    let html = "";
-    let acertos = 0;
-    origArr.forEach((word, i) => {
-        if (falArr[i] === word) {
-            html += `<span class="word-correct">${word}</span> `;
-            acertos++;
-        } else if (falArr[i]) {
-            html += `<span class="word-error">${falArr[i]}</span> <span style="color: var(--primary);">(${word})</span> `;
-        } else {
-            html += `<span class="word-missed">(${word})</span> `;
-        }
-    });
-    return { html, precisao: (acertos / origArr.length) * 100 };
-}
-
-// --- TÉCNICA: SMART CHUNKING ---
-function applySmartChunking(text) {
-    const commonChunks = [
-        /\b(i am|i'm|it is|it's|you are|you're|they are|they're|we are|we're)\b/gi,
-        /\b(want to|wanna|going to|gonna|have to|has to|need to|did you|do you|will you|would you)\b/gi,
-        /\b(i don't|i didn't|it doesn't|she doesn't)\b/gi
-    ];
-    let processed = text;
-    commonChunks.forEach(regex => { processed = processed.replace(regex, (match) => match.replace(/ /g, "_")); });
-    let words = processed.split(' ');
-    let finalBlocks = [];
-    for (let i = 0; i < words.length; i++) {
-        if (words[i].includes('_')) { finalBlocks.push(words[i].replace(/_/g, " ")); }
-        else if (nivelAtivo === 'ADVANCED') {
-            if (words[i + 1] && words[i + 2]) { finalBlocks.push(`${words[i]} ${words[i + 1]} ${words[i + 2]}`); i += 2; }
-            else { finalBlocks.push(words[i]); }
-        } else if (words[i + 1] && !words[i + 1].includes('_')) {
-            finalBlocks.push(words[i] + " " + words[i + 1]); i++;
-        } else { finalBlocks.push(words[i]); }
-    }
-    return finalBlocks;
-}
-
-// --- RENDERIZAÇÃO ---
-function render() {
-    const filtradas = frases.filter(f => f.meta.level === nivelAtivo);
-    document.getElementById('xpDisplay').innerText = xp;
-    updateAnalytics();
-    renderSRS();
-    let item = (filaSRS.length > 0 && Math.random() > 0.6) ?
-        filaSRS[Math.floor(Math.random() * filaSRS.length)] :
-        (filtradas[indexAtual] || filtradas[0]);
-    if (!item) return;
-    const paretoActive = isParetoPhrase(item.en);
-    const container = document.getElementById('mainContainer');
-    const tenseBadge = document.getElementById('tenseBadge');
-    if (paretoActive) {
-        container.classList.add('pareto-active');
-        tenseBadge.classList.add('badge-pareto');
-        tenseBadge.innerText = item.meta.tense + " • 80/20";
-    } else {
-        container.classList.remove('pareto-active');
-        tenseBadge.classList.remove('badge-pareto');
-        tenseBadge.innerText = item.meta.tense;
-    }
-    document.getElementById('typeBadge').innerText = item.meta.type;
-    document.getElementById('pronunciationDisplay').innerHTML = gerarPronunciaDinamica(item.en, item.meta.soundsLike);
-    const display = document.getElementById('blockDisplay');
-    display.innerHTML = '';
-    applySmartChunking(item.en).forEach(text => {
+    if (displayPronuncia && !displayPronuncia.querySelector('.translation-hint')) {
         const div = document.createElement('div');
-        div.className = 'chunk';
-        div.innerText = text;
-        div.style = getCorGramatical(text);
-        display.appendChild(div);
-    });
-    falar(item.en);
-    startTimer();
+        div.className = 'translation-hint';
+        div.style = "margin-top: 10px; color: #00ff88; font-weight: bold; font-size: 1.1rem; border-top: 1px solid #333; padding-top: 5px;";
+        div.innerHTML = `🇧🇷 ${item.pt}`;
+        displayPronuncia.appendChild(div);
+    }
 }
 
-// --- ANALYTICS ---
-function updateAnalytics() {
-    let p = 0, v = 0, a = 0;
-    frases.forEach(f => {
-        const words = f.en.toLowerCase().split(' ');
-        words.forEach(w => {
-            if (LIB.pronomes.includes(w)) p++;
-            if (LIB.verbos.includes(w)) v++;
-            if (LIB.adjetivos.includes(w)) a++;
-        });
-    });
-    document.getElementById('count-pronouns').innerText = p;
-    document.getElementById('count-verbs').innerText = v;
-    document.getElementById('count-adjectives').innerText = a;
+// --- TIMER ADAPTATIVO ---
+function startTimer() {
+    clearInterval(timerFunc);
+    let penalty = Math.floor(xp / 3000);
+    timeLeft = Math.max(7, 15 - penalty);
+    const timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) {
+        timerDisplay.innerText = timeLeft;
+        timerFunc = setInterval(() => {
+            timeLeft--;
+            timerDisplay.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerFunc);
+                triggerErrorEffect();
+                registrarErro();
+                proximaFrase();
+            }
+        }, 1000);
+    }
+}
+
+// --- SISTEMA SRS ---
+function registrarErro() {
+    const item = getCurrentItem();
+    if (!item) return;
+    if (!filaSRS.find(x => x.en === item.en)) {
+        filaSRS.push({ ...item, mastery: 0 });
+        localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
+    }
+    renderSRS();
 }
 
 function renderSRS() {
@@ -163,102 +147,132 @@ function renderSRS() {
     list.innerHTML = '';
     filaSRS.slice(-3).reverse().forEach(item => {
         const div = document.createElement('div');
-        div.style = "background: #000; padding: 10px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid var(--error);";
+        div.style = "background: #000; padding: 10px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid #ff4444;";
         div.innerHTML = `<div style="color: #fff; font-size: 0.85rem; font-weight: bold;">${item.en}</div><div style="color: #888; font-size: 0.75rem;">${item.pt}</div>`;
         list.appendChild(div);
     });
 }
 
+// --- FEEDBACK DE VOZ ---
+function gerarFeedbackShadowing(original, falado) {
+    const limpar = (t) => t.toLowerCase().replace(/[?.,!]/g, "").trim();
+    const origArr = limpar(original).split(/\s+/);
+    const falArr = limpar(falado).split(/\s+/);
+    let html = ""; let scoreTotal = 0;
+    origArr.forEach((word, i) => {
+        const userWord = falArr[i] || "";
+        const dist = calcularDistancia(word, userWord);
+        if (dist === 0) { html += `<span style="color: #00ff88; font-weight: bold;">${word}</span> `; scoreTotal += 1; }
+        else if (dist <= 2 && userWord.length > 2) { html += `<span style="color: #ffcc00; border-bottom: 2px dashed;">${userWord || word}</span> `; scoreTotal += 0.7; }
+        else { html += `<span style="color: #ff4444; text-decoration: line-through;">${userWord || "..."}</span> <small style="color: #666">(${word})</small> `; }
+    });
+    return { html, precisao: (scoreTotal / origArr.length) * 100 };
+}
+
 function testarPronuncia() {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Speech) return alert("Reconhecimento de voz não suportado.");
-    const rec = new Speech();
-    rec.lang = 'en-US';
-    rec.onstart = () => document.getElementById('wave').classList.add('active');
+    if (!Speech) return alert("Voz não suportada.");
+    const rec = new Speech(); rec.lang = 'en-US';
+    rec.onstart = () => { document.getElementById('wave').classList.add('active'); document.getElementById('heardText').innerText = "Ouvindo..."; };
     rec.onend = () => document.getElementById('wave').classList.remove('active');
     rec.onresult = (e) => {
         const talk = e.results[0][0].transcript;
         const textoOriginal = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
         const feedback = gerarFeedbackShadowing(textoOriginal, talk);
-        const item = getCurrentItem();
-        document.getElementById('heardText').innerHTML = feedback.html;
-        if (feedback.precisao >= 70) {
-            playFeedback('success');
-            revelarResposta(item); // REVELA TRADUÇÃO
-            const paretoActive = isParetoPhrase(textoOriginal);
-            const bonus = Math.floor((50 + (timeLeft * 5)) * (paretoActive ? 2 : 1));
-            xp += bonus;
-            localStorage.setItem('dev_xp', xp);
-            document.getElementById('xpDisplay').innerText = xp;
-            showXpBonus(bonus, paretoActive);
-            setTimeout(proximaFrase, 2500); // Mais tempo para ler
-        } else {
-            triggerErrorEffect();
-            registrarErro();
-        }
+        document.getElementById('heardText').innerHTML = `<div style="font-size: 0.8rem; color: #888;">Detected: "${talk}"</div><div>${feedback.html}</div><div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}">PRECISION: ${Math.round(feedback.precisao)}%</div>`;
+        if (feedback.precisao >= 70) finalizarSucesso(getCurrentItem(), Math.floor(feedback.precisao), true);
+        else { triggerErrorEffect(); registrarErro(); }
     };
     rec.start();
 }
 
-function getCorGramatical(texto) {
-    const t = texto.toLowerCase().split(' ');
-    if (t.some(w => LIB.auxiliares.includes(w))) return 'border-bottom: 4px solid var(--auxiliary);';
-    if (t.some(w => LIB.pronomes.includes(w))) return 'border-bottom: 4px solid var(--pronoun);';
-    if (t.some(w => LIB.verbos.includes(w))) return 'border-bottom: 4px solid var(--verb);';
-    if (t.some(w => LIB.adjetivos.includes(w))) return 'border-bottom: 4px solid var(--adjective);';
-    return 'border-bottom: 4px solid #444;';
+function finalizarSucesso(item, baseXP, isVoz) {
+    playFeedback('success');
+    revelarResposta(item);
+    const paretoActive = isParetoPhrase(item.en);
+    const bonus = Math.floor((baseXP + (timeLeft * 5)) * (paretoActive ? 2 : 1));
+    xp += bonus;
+    localStorage.setItem('dev_xp', xp);
+    document.getElementById('xpDisplay').innerText = xp;
+    showXpBonus(bonus, paretoActive);
+    filaSRS = filaSRS.filter(x => x.en !== item.en);
+    localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
+    setTimeout(proximaFrase, 2800);
 }
 
-function startTimer() {
-    clearInterval(timerFunc);
-    timeLeft = 15;
-    document.getElementById('timerDisplay').innerText = timeLeft;
-    timerFunc = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timerDisplay').innerText = timeLeft;
-        if (timeLeft <= 0) {
-            clearInterval(timerFunc);
-            triggerErrorEffect();
-            registrarErro();
-            proximaFrase();
-        }
-    }, 1000);
-}
-
-function registrarErro() {
-    const item = getCurrentItem();
-    if (!item) return;
-    if (!filaSRS.find(x => x.en === item.en)) {
-        filaSRS.push({ ...item, mastery: 0 });
-        localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
-    }
+// --- RENDERIZAÇÃO ---
+function render() {
+    const filtradas = frases.filter(f => f.meta.level === nivelAtivo);
+    document.getElementById('xpDisplay').innerText = xp;
+    updateAnalytics();
     renderSRS();
+    let item;
+    if (filaSRS.length > 0 && Math.random() < 0.4) item = filaSRS[Math.floor(Math.random() * filaSRS.length)];
+    else item = filtradas[indexAtual % filtradas.length] || defaultFrases()[0];
+    if (!item) return;
+
+    const paretoActive = isParetoPhrase(item.en);
+    const container = document.getElementById('mainContainer');
+    const tenseBadge = document.getElementById('tenseBadge');
+    if (container) container.className = paretoActive ? 'container pareto-active' : 'container';
+    if (tenseBadge) {
+        tenseBadge.innerText = paretoActive ? item.meta.tense + " • 80/20" : item.meta.tense;
+        tenseBadge.className = paretoActive ? 'badge badge-pareto' : 'badge';
+    }
+    document.getElementById('typeBadge').innerText = item.meta.type;
+    document.getElementById('pronunciationDisplay').innerHTML = gerarPronunciaDinamica(item.en, item.meta.soundsLike);
+    const display = document.getElementById('blockDisplay');
+    display.innerHTML = '';
+    applySmartChunking(item.en).forEach(text => {
+        const div = document.createElement('div');
+        div.className = 'chunk'; div.innerText = text; div.style = getCorGramatical(text);
+        display.appendChild(div);
+    });
+    falar(item.en);
+    startTimer();
 }
 
-function getCurrentItem() {
-    const txt = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
-    return frases.find(f => f.en === txt) || filaSRS.find(f => f.en === txt);
+// --- FUNÇÕES DE APOIO ---
+function gerarPronunciaDinamica(texto, originalSound) {
+    const REGRAS = [{ r: /\bdid you\b/gi, s: "did-ju" }, { r: /\bwant to\b/gi, s: "wanna" }, { r: /\bgoing to\b/gi, s: "gonna" }, { r: /\bwhat do you\b/gi, s: "whatcha" }];
+    let base = (originalSound && originalSound !== texto) ? originalSound : texto.toLowerCase();
+    REGRAS.forEach(regra => base = base.replace(regra.r, `<span class="connected-match">${regra.s}</span>`));
+    return `🗣️ Som: ${base}`;
+}
+
+function applySmartChunking(text) {
+    const commonChunks = [/\b(i am|i'm|it is|it's|you are|you're)\b/gi, /\b(want to|wanna|going to|gonna|have to)\b/gi];
+    let processed = text;
+    commonChunks.forEach(regex => processed = processed.replace(regex, (m) => m.replace(/ /g, "_")));
+    let words = processed.split(' '); let finalBlocks = [];
+    for (let i = 0; i < words.length; i++) {
+        if (words[i].includes('_')) finalBlocks.push(words[i].replace(/_/g, " "));
+        else if (words[i + 1]) { finalBlocks.push(words[i] + " " + words[i + 1]); i++; }
+        else finalBlocks.push(words[i]);
+    }
+    return finalBlocks;
+}
+
+function getCorGramatical(texto) {
+    const t = texto.toLowerCase();
+    if (LIB.auxiliares.some(w => t.includes(w))) return 'border-bottom: 4px solid var(--auxiliary);';
+    if (LIB.pronomes.some(w => t.includes(w))) return 'border-bottom: 4px solid var(--pronoun);';
+    if (LIB.verbos.some(w => t.includes(w))) return 'border-bottom: 4px solid var(--verb);';
+    return 'border-bottom: 4px solid #444;';
 }
 
 function handleEnter(e) {
     if (e.key === 'Enter') {
         const input = document.getElementById('userInput').value.trim().toLowerCase().replace(/[?.,!]/g, "");
         const item = getCurrentItem();
-        if (item && input === item.pt.toLowerCase().replace(/[?.,!]/g, "")) {
-            playFeedback('success');
-            revelarResposta(item); // REVELA TRADUÇÃO
-            const paretoActive = isParetoPhrase(item.en);
-            const bonus = (10 + timeLeft) * (paretoActive ? 2 : 1);
-            xp += bonus;
-            localStorage.setItem('dev_xp', xp);
-            document.getElementById('xpDisplay').innerText = xp;
-            showXpBonus(bonus, paretoActive);
-            setTimeout(proximaFrase, 2500); // Mais tempo para ler
-        } else {
-            triggerErrorEffect();
-            registrarErro();
-        }
+        if (item && input === item.pt.toLowerCase().replace(/[?.,!]/g, "")) finalizarSucesso(item, 20, false);
+        else { triggerErrorEffect(); registrarErro(); }
     }
+}
+
+function getCurrentItem() {
+    const txt = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
+    return frases.find(f => f.en === txt) || filaSRS.find(f => f.en === txt);
 }
 
 function proximaFrase() {
@@ -271,7 +285,7 @@ function proximaFrase() {
 function falar(t) {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'en-US'; u.rate = 0.9;
+    u.lang = 'en-US'; u.rate = 0.85;
     window.speechSynthesis.speak(u);
 }
 
@@ -279,9 +293,8 @@ function falarAtual() { falar(document.getElementById('blockDisplay').innerText)
 
 function triggerErrorEffect() {
     const container = document.getElementById('mainContainer');
-    container.style.animation = "shake 0.3s";
+    if (container) { container.style.animation = "shake 0.3s"; setTimeout(() => container.style.animation = "", 300); }
     playFeedback('error');
-    setTimeout(() => container.style.animation = "", 300);
 }
 
 function setNivel(lvl) {
@@ -291,28 +304,19 @@ function setNivel(lvl) {
     render();
 }
 
-async function saveNewPhrase() {
-    const en = document.getElementById('newEn').value;
-    const pt = document.getElementById('newPt').value;
-    const soundsLike = document.getElementById('manualSounds').value;
-    if (!en || !pt) return alert("Preencha inglês e português!");
-    const novaFrase = {
-        en, pt,
-        meta: {
-            level: document.getElementById('newLevel').value,
-            tense: analiseAtual.tense || "PRESENT",
-            type: analiseAtual.type || "AFFIRMATIVE",
-            soundsLike: soundsLike || en
-        }
-    };
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(novaFrase)
+function updateAnalytics() {
+    let p = 0, v = 0, a = 0;
+    frases.forEach(f => {
+        const words = f.en.toLowerCase().split(' ');
+        words.forEach(w => {
+            if (LIB.pronomes.includes(w)) p++;
+            if (LIB.verbos.includes(w)) v++;
+            if (LIB.adjetivos.includes(w)) a++;
         });
-        if (res.ok) { alert("Salvo com sucesso!"); location.reload(); }
-    } catch (e) { alert("Servidor offline!"); }
+    });
+    if (document.getElementById('count-pronouns')) document.getElementById('count-pronouns').innerText = p;
+    if (document.getElementById('count-verbs')) document.getElementById('count-verbs').innerText = v;
+    if (document.getElementById('count-adjectives')) document.getElementById('count-adjectives').innerText = a;
 }
 
 async function analisarDinamico() {
@@ -321,60 +325,63 @@ async function analisarDinamico() {
     let tense = /\b(will|going to|'ll)\b/i.test(en) ? "FUTURE" : (/\b(ed|did|was|were|went|had)\b/i.test(en) ? "PAST" : "PRESENT");
     let type = en.includes("?") ? "QUESTION" : (/\b(not|n't|never)\b/i.test(en) ? "NEGATIVE" : "AFFIRMATIVE");
     analiseAtual = { tense, type };
-    document.getElementById('tag-PAST').style.opacity = tense === "PAST" ? "1" : "0.3";
-    document.getElementById('tag-PRESENT').style.opacity = tense === "PRESENT" ? "1" : "0.3";
-    document.getElementById('tag-FUTURE').style.opacity = tense === "FUTURE" ? "1" : "0.3";
+    ['PAST', 'PRESENT', 'FUTURE'].forEach(t => {
+        const el = document.getElementById(`tag-${t}`);
+        if (el) el.style.opacity = tense === t ? "1" : "0.2";
+    });
     clearTimeout(timeoutTraducao);
     timeoutTraducao = setTimeout(async () => {
         try {
             const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(en)}&langpair=en|pt-BR`);
             const data = await res.json();
             document.getElementById('newPt').value = data.responseData.translatedText;
-        } catch (e) { console.error("Erro Tradutor"); }
+            document.getElementById('translationPreview').innerText = "Tradução Sugerida: " + data.responseData.translatedText;
+        } catch (e) { }
     }, 800);
 }
 
-async function gerarFraseViaAPI() {
+async function saveNewPhrase() {
+    const en = document.getElementById('newEn').value;
+    const pt = document.getElementById('newPt').value;
+    const soundsLike = document.getElementById('manualSounds').value;
+    if (!en || !pt) return alert("Preencha os campos!");
+    const novaFrase = { en, pt, meta: { level: document.getElementById('newLevel').value, tense: analiseAtual.tense || "PRESENT", type: analiseAtual.type || "AFFIRMATIVE", soundsLike: soundsLike || en } };
     try {
-        const res = await fetch('https://api.adviceslip.com/advice');
-        const data = await res.json();
-        document.getElementById('newEn').value = data.slip.advice;
-        analisarDinamico();
-    } catch (e) { console.error("Erro API"); }
+        const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(novaFrase) });
+        if (res.ok) { alert("✨ Frase Salva no MongoDB!"); location.reload(); }
+    } catch (e) { alert("Erro ao conectar ao servidor!"); }
 }
 
 async function fetchFrases() {
     try {
         const res = await fetch(API_URL);
-        const data = await res.json();
-        frases = data.length > 0 ? data : defaultFrases();
-        render();
-    } catch (e) { frases = defaultFrases(); render(); }
+        frases = await res.json();
+        if (!frases || frases.length === 0) frases = defaultFrases();
+    } catch (e) { frases = defaultFrases(); }
+    render();
 }
 
 function defaultFrases() {
-    return [
-        { en: "I want to study", pt: "Eu quero estudar", meta: { level: "BEGINNER", tense: "PRESENT", type: "AFFIRMATIVE", soundsLike: "ai uana estãdi" } },
-        { en: "Did you go?", pt: "Você foi?", meta: { level: "BEGINNER", tense: "PAST", type: "QUESTION", soundsLike: "did-ju gou" } }
-    ];
+    return [{ en: "I want to learn", pt: "Eu quero aprender", meta: { level: "BEGINNER", tense: "PRESENT", type: "AFFIRMATIVE", soundsLike: "ai uana lêrn" } }];
 }
 
 function showXpBonus(amount, isPareto) {
     const div = document.createElement('div');
-    div.className = 'xp-float animate-xp ' + (isPareto ? 'xp-pareto' : 'xp-normal');
+    div.style = `position: fixed; top: 50%; left: 50%; color: ${isPareto ? '#ffcc00' : '#00ff88'}; font-weight: 900; z-index: 1000; pointer-events: none; transform: translate(-50%, -50%);`;
     div.innerText = `+${amount} XP ${isPareto ? '🔥 PARETO' : ''}`;
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 1000);
 }
 
 function playFeedback(type) {
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = context.createOscillator();
-    const gain = context.createGain();
-    osc.connect(gain); gain.connect(context.destination);
-    osc.frequency.setValueAtTime(type === 'success' ? 587 : 110, context.currentTime);
-    gain.gain.setValueAtTime(0.05, context.currentTime);
-    osc.start(); osc.stop(context.currentTime + 0.15);
+    try {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = context.createOscillator(); const gain = context.createGain();
+        osc.connect(gain); gain.connect(context.destination);
+        osc.frequency.setValueAtTime(type === 'success' ? 580 : 120, context.currentTime);
+        gain.gain.setValueAtTime(0.05, context.currentTime);
+        osc.start(); osc.stop(context.currentTime + 0.15);
+    } catch (e) { }
 }
 
 window.onload = fetchFrases;

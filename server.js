@@ -1,110 +1,108 @@
 const express = require('express');
-const fs = require('fs');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
-const BACKUP_FILE = path.join(__dirname, 'data_backup.json');
+const PORT = process.env.PORT || 3000;
 
-// Middleware
+// --- CONFIGURAÇÃO DO MONGODB ---
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Admin:Familia2512@aula.o5oekbk.mongodb.net/?appName=Aula";
+
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("\n\x1b[32m🍃 Conectado ao MongoDB Atlas com sucesso!\x1b[0m"))
+    .catch(err => {
+        console.error("❌ Erro fatal na conexão ao MongoDB:");
+        console.error(err);
+    });
+
+// --- ESQUEMA DE DADOS (MODELO) ---
+const FraseSchema = new mongoose.Schema({
+    en: { type: String, required: true },
+    pt: { type: String, required: true },
+    meta: {
+        level: { type: String, default: 'BEGINNER' },
+        tense: { type: String, default: 'PRESENT' },
+        type: { type: String, default: 'AFFIRMATIVE' },
+        soundsLike: String
+    },
+    id: { type: Number, default: () => Date.now() },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Frase = mongoose.model('Frase', FraseSchema);
+
+// --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// --- INICIALIZADOR DE SEGURANÇA ---
-const initDB = () => {
-    if (!fs.existsSync(DATA_FILE)) {
-        // Se não existir, cria com algumas frases iniciais para não vir vazio
-        const initialData = [
-            {
-                en: "I have to go now",
-                pt: "Eu tenho que ir agora",
-                meta: { level: "BEGINNER", tense: "PRESENT", type: "AFFIRMATIVE", soundsLike: "ai häv-tuh gou nau" },
-                id: 1,
-                createdAt: new Date().toISOString()
-            }
-        ];
-        fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
-        console.log("📂 Banco de dados data.json criado com sucesso.");
-    }
-};
-initDB();
-
 // --- ROTAS DA API ---
 
-// 1. Buscar todas as frases
-app.get('/api/frases', (req, res) => {
+app.get('/api/frases', async (req, res) => {
     try {
-        const data = fs.readFileSync(DATA_FILE, 'utf8');
-        const frases = JSON.parse(data);
+        const frases = await Frase.find().sort({ createdAt: -1 });
         res.json(frases);
     } catch (err) {
-        console.error("❌ Erro ao ler arquivo:", err);
-        res.status(500).json({ error: "Erro ao ler as frases." });
+        res.status(500).json({ error: "Erro ao buscar frases no banco." });
     }
 });
 
-// 2. Salvar nova frase com Backup Automático
-app.post('/api/frases', (req, res) => {
+app.post('/api/frases', async (req, res) => {
     try {
-        const data = fs.readFileSync(DATA_FILE, 'utf8');
-        const frases = JSON.parse(data);
+        const { en, pt, meta } = req.body;
+        if (!en || !pt || !meta) return res.status(400).json({ error: "Dados incompletos." });
 
-        const novaFrase = {
-            ...req.body,
-            id: Date.now(),
-            createdAt: new Date().toISOString()
-        };
+        const novaFrase = new Frase({ en: en.trim(), pt: pt.trim(), meta });
+        await novaFrase.save();
 
-        frases.push(novaFrase);
-
-        // Salva o arquivo principal
-        fs.writeFileSync(DATA_FILE, JSON.stringify(frases, null, 2));
-
-        // Cria um backup de segurança
-        fs.writeFileSync(BACKUP_FILE, JSON.stringify(frases, null, 2));
-
-        console.log(`\n✨ NOVA FRASE CADASTRADA ✨`);
-        console.log(`🇺🇸 EN: ${novaFrase.en}`);
-        console.log(`🇧🇷 PT: ${novaFrase.pt}`);
-        console.log(`📊 Total no Banco: ${frases.length}`);
-
+        const isPareto = /get|have|take|do|make|go|can|will|want|need/i.test(novaFrase.en);
+        console.log(`\n\x1b[36m[NOVA FRASE NO MONGODB]\x1b[0m`);
+        console.log(`Level: ${meta.level} | Pareto: ${isPareto ? '🔥 SIM' : 'NÃO'}`);
         res.status(201).json(novaFrase);
     } catch (err) {
-        console.error("❌ Erro ao salvar:", err);
-        res.status(500).json({ error: "Erro ao salvar a frase." });
+        res.status(500).json({ error: "Erro ao salvar no MongoDB." });
     }
 });
 
-// 3. Rota de Stats (Aprimorada para refletir a estrutura do App)
-app.get('/api/stats', (req, res) => {
+app.delete('/api/frases/:id', async (req, res) => {
     try {
-        const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+        const result = await Frase.deleteOne({ id: req.params.id });
+        if (result.deletedCount === 0) return res.status(404).json({ error: "Frase não encontrada." });
+        res.json({ message: "Frase removida com sucesso." });
+    } catch (err) {
+        res.status(500).json({ error: "Erro ao deletar." });
+    }
+});
+
+app.get('/api/stats', async (req, res) => {
+    try {
+        const data = await Frase.find();
         const stats = {
             total: data.length,
-            beginner: data.filter(f => f.meta.level === 'BEGINNER').length,
-            intermediate: data.filter(f => f.meta.level === 'INTERMEDIATE').length,
-            advanced: data.filter(f => f.meta.level === 'ADVANCED').length,
-            paretoCount: data.filter(f => {
-                const words = f.en.toLowerCase().split(' ');
-                return words.some(w => ['get', 'have', 'do', 'make', 'go', 'can', 'will'].includes(w));
-            }).length
+            levels: {
+                beginner: data.filter(f => f.meta.level === 'BEGINNER').length,
+                intermediate: data.filter(f => f.meta.level === 'INTERMEDIATE').length,
+                advanced: data.filter(f => f.meta.level === 'ADVANCED').length,
+            },
+            paretoCount: data.filter(f => /get|have|take|do|make|go|can|will/i.test(f.en)).length
         };
         res.json(stats);
     } catch (err) {
-        res.status(500).json({ error: "Erro ao calcular estatísticas." });
+        res.status(500).json({ error: "Erro ao compilar analytics." });
     }
 });
 
-// Inicialização
-app.listen(PORT, () => {
-    console.log(`\n================================================`);
-    console.log(`🚀 LIFE ENGLISH ULTRA - PARETO ENGINE ACTIVE`);
-    console.log(`📡 API: http://localhost:${PORT}/api/frases`);
-    console.log(`🌐 APP: http://localhost:${PORT}/index.html`);
-    console.log(`📂 DATA: ${DATA_FILE}`);
-    console.log(`================================================\n`);
-    console.log(`💡 Dica: Mantenha este terminal aberto para salvar suas frases.`);
+// --- CORREÇÃO FINAL PARA NODE V24 ---
+// Em vez de strings com '*', usamos Regex pura (/.*/) 
+// Isso captura qualquer rota sem gerar erro de parâmetro.
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n\x1b[32m================================================`);
+    console.log(`🚀 LIFE ENGLISH ULTRA ENGINE ONLINE (CLOUD MODE)`);
+    console.log(`📡 PORTA: ${PORT}`);
+    console.log(`================================================\x1b[0m\n`);
 });

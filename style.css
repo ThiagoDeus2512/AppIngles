@@ -59,49 +59,57 @@ body {
     width: 0%;
 }
 
+.xp-label {
+    font-weight: 900;
+    color: var(--success);
+    font-size: 1.1rem;
+    min-width: 80px;
+}
+
 /* --- CONTAINER PRINCIPAL --- */
 .container {
     background: var(--card);
     padding: 40px;
     border-radius: 28px;
-    width: 90%;
+    width: 95%;
     max-width: 800px;
     text-align: center;
     border: 1px solid #252525;
     transition: all 0.4s ease;
     position: relative;
+    box-sizing: border-box;
 }
 
-/* Efeito 80/20 Ativo */
 .container.pareto-active {
     border-color: var(--pareto);
     box-shadow: 0 0 25px var(--pareto-glow);
 }
 
 /* --- BLOCOS DE TEXTO (CHUNKS) --- */
-.block-container {
+#blockDisplay {
     display: flex;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
     margin: 30px 0;
     flex-wrap: wrap;
 }
 
 .chunk {
-    padding: 18px 28px;
-    border-radius: 18px;
-    font-size: 1.8rem;
+    padding: 14px 22px;
+    border-radius: 15px;
+    font-size: 1.6rem;
     font-weight: 800;
     background: #1e1e1e;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s ease;
-    border-bottom: 4px solid #444;
-    /* Cor base se o JS falhar */
+    border-bottom: 5px solid #444;
+    white-space: nowrap;
 }
 
 .chunk:hover {
     transform: translateY(-3px);
     background: #252525;
+    filter: brightness(1.2);
 }
 
 /* --- SISTEMA DE PRONÚNCIA & REVELAÇÃO --- */
@@ -123,7 +131,6 @@ body {
     text-shadow: 0 0 8px rgba(255, 121, 198, 0.3);
 }
 
-/* NOVO: Estilo da Tradução Revelada */
 .translation-hint {
     margin-top: 12px;
     padding-top: 10px;
@@ -135,25 +142,39 @@ body {
 }
 
 @keyframes revealText {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- SHADOWING FEEDBACK --- */
 #heardText {
-    min-height: 1.5em;
-    margin-bottom: 15px;
-    font-weight: 600;
-    font-size: 1.1rem;
+    min-height: 60px;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 16px;
+    border: 1px solid #222;
 }
 
-/* --- BADGES --- */
+.word-correct { color: var(--success); font-weight: bold; }
+.word-warning { color: var(--pareto); border-bottom: 2px dashed var(--pareto); }
+.word-error { color: var(--error); text-decoration: line-through; }
+
+/* --- SRS PANEL --- */
+#reviewPanel {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+    display: none;
+}
+
+#reviewList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+/* --- BADGES & TAGS --- */
 .badge {
     padding: 6px 16px;
     border-radius: 8px;
@@ -163,6 +184,7 @@ body {
     margin: 0 5px;
     display: inline-block;
     background: #222;
+    border: 1px solid #333;
 }
 
 .badge-pareto {
@@ -171,18 +193,16 @@ body {
     animation: pulse-pareto 2s infinite ease-in-out;
 }
 
+.tag-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
 @keyframes pulse-pareto {
-
-    0%,
-    100% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
 }
 
 /* --- BOTÕES DE NÍVEL --- */
@@ -212,13 +232,12 @@ body {
     border-color: var(--primary);
 }
 
-/* --- INPUTS --- */
-input {
+/* --- INPUTS & BOTÕES --- */
+input, select {
     background: #000;
     color: white;
     border: 2px solid #333;
     padding: 18px;
-    width: 100%;
     border-radius: 16px;
     text-align: center;
     font-size: 1.2rem;
@@ -249,15 +268,38 @@ input:focus {
     gap: 10px;
 }
 
-.btn-mic:hover {
-    background: #ff4466;
+/* --- PAINEL ADMINISTRATIVO (NOVO) --- */
+.admin-panel {
+    background: var(--card);
+    padding: 30px;
+    border-radius: 28px;
+    width: 95%;
+    max-width: 800px;
+    margin-top: 30px;
+    border: 1px dashed #444;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.btn-mic:active {
-    transform: scale(0.98);
+.admin-panel h3 { margin: 0; color: var(--primary); }
+
+.admin-row {
+    display: flex;
+    gap: 10px;
 }
 
-/* --- ANIMAÇÕES DE VOZ (WAVE) --- */
+.btn-save {
+    background: var(--success);
+    color: black;
+    font-weight: 900;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+/* --- VOICE WAVE --- */
 .voice-wave {
     display: flex;
     justify-content: center;
@@ -268,9 +310,7 @@ input:focus {
     transition: 0.3s;
 }
 
-.voice-wave.active {
-    opacity: 1;
-}
+.voice-wave.active { opacity: 1; }
 
 .bar {
     width: 4px;
@@ -279,94 +319,57 @@ input:focus {
     animation: wave 0.6s infinite ease-in-out;
 }
 
-.bar:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.bar:nth-child(3) {
-    animation-delay: 0.2s;
-}
-
 @keyframes wave {
-
-    0%,
-    100% {
-        height: 8px;
-    }
-
-    50% {
-        height: 25px;
-    }
+    0%, 100% { height: 8px; }
+    50% { height: 25px; }
 }
 
-/* --- FEEDBACK DE TEXTO --- */
-.word-correct {
-    color: var(--success);
+/* --- ANALYTICS PANEL --- */
+.analytics-panel {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 800px;
 }
 
-.word-error {
-    color: var(--error);
-    text-decoration: line-through;
+.stat-card {
+    flex: 1;
+    background: var(--card);
+    padding: 15px;
+    border-radius: 18px;
+    border: 1px solid #222;
+    text-align: center;
 }
 
-.word-missed {
-    color: var(--primary);
-    font-style: italic;
-}
+.stat-value { font-size: 1.5rem; font-weight: 900; display: block; }
+.stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
 
-/* --- XP FLUTUANTE --- */
+/* --- EFEITOS ESPECIAIS (XP & ERRO) --- */
 .xp-float {
     position: fixed;
     font-weight: 900;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     pointer-events: none;
     z-index: 9999;
-}
-
-.xp-normal {
-    color: var(--success);
-}
-
-.xp-pareto {
-    color: var(--pareto);
-    text-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
-}
-
-.animate-xp {
     animation: floatUp 1.2s forwards ease-out;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 @keyframes floatUp {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, 0);
-    }
-
-    20% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -150px);
-    }
+    0% { opacity: 0; transform: translate(-50%, 0); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -150px); }
 }
 
-/* --- SHAKE (ERRO) --- */
 @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
 
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    20%,
-    60% {
-        transform: translateX(-10px);
-    }
-
-    40%,
-    80% {
-        transform: translateX(10px);
-    }
+#timerDisplay {
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: var(--error);
 }
