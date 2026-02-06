@@ -10,25 +10,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log("\n\x1b[34m[SISTEMA]\x1b[0m Verificando configuração...");
+console.log(process.env.GEMINI_API_KEY ? "✅ Chave Gemini detectada." : "❌ Erro: GEMINI_API_KEY não encontrada no .env");
 
-// --- SEGURANÇA: Verificação de Chaves ---
-if (!process.env.GEMINI_API_KEY) {
-    console.error("❌ Erro: GEMINI_API_KEY não encontrada no .env");
-}
-if (!process.env.MONGO_URI) {
-    console.warn("⚠️ Aviso: MONGO_URI não encontrada no .env, usando fallback.");
-}
-
+// --- CONFIGURAÇÃO DO GEMINI ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const upload = multer({ storage: multer.memoryStorage() });
 
 // --- MONGODB ---
-// Prioriza sempre o que está no .env por segurança
-const MONGO_URI = process.env.MONGO_URI;
-
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Admin:Familia2512@aula.o5oekbk.mongodb.net/?appName=Aula";
 mongoose.connect(MONGO_URI)
     .then(() => console.log("\x1b[32m🍃 Conectado ao MongoDB Atlas!\x1b[0m"))
-    .catch(err => console.error("❌ Erro MongoDB:", err.message));
+    .catch(err => console.error("❌ Erro MongoDB:", err));
 
 // --- MODELO ---
 const FraseSchema = new mongoose.Schema({
@@ -58,9 +50,13 @@ app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
 
         if (!audioFile) return res.status(400).json({ error: "Áudio não recebido." });
 
-        console.log(`\x1b[35m[GEMINI AI]\x1b[0m Analisando áudio para: "${expectedText}"`);
+        console.log(`\n\x1b[35m[GEMINI AI]\x1b[0m Analisando: "${expectedText}"`);
 
-        // 🔥 O prefixo "models/" ajuda a evitar o erro 404 em algumas versões do SDK
+        /**
+         * 🔥 A SOLUÇÃO DEFINITIVA PARA O ERRO 404:
+         * Em vez de passar apenas "gemini-1.5-flash", passamos o caminho completo 
+         * que a API v1 espera: "models/gemini-1.5-flash".
+         */
         const model = genAI.getGenerativeModel({
             model: "models/gemini-1.5-flash"
         });
@@ -68,30 +64,29 @@ app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
         const audioData = {
             inlineData: {
                 data: audioFile.buffer.toString("base64"),
-                mimeType: "audio/webm" // Forçamos webm que é o padrão do seu script.js
+                mimeType: audioFile.mimetype === 'application/octet-stream' ? 'audio/webm' : audioFile.mimetype
             }
         };
 
         const prompt = `Você é um professor nativo de inglês. Analise a pronúncia do usuário para a frase: "${expectedText}". 
         Responda em Português de forma curta:
-        1. Avalie a clareza da pronúncia.
-        2. Liste palavras específicas que ele errou (se houver).
+        1. Avalie a clareza.
+        2. Liste palavras que ele errou (se houver).
         3. Dê uma nota final como "Nota: X/100".`;
 
         const result = await model.generateContent([prompt, audioData]);
         const response = await result.response;
         const text = response.text();
 
-        console.log("✅ Análise concluída com sucesso.");
         res.json({ status: "success", feedback: text });
 
     } catch (err) {
         console.error("❌ Erro na API Gemini:", err.message);
-        res.status(500).json({ error: "IA indisponível.", details: err.message });
+        res.status(500).json({ error: "IA indisponível no momento.", details: err.message });
     }
 });
 
-// --- CRUD Frases ---
+// CRUD Frases
 app.get('/api/frases', async (req, res) => {
     try {
         const frases = await Frase.find().sort({ createdAt: -1 });
@@ -110,11 +105,10 @@ app.post('/api/frases', async (req, res) => {
 
 app.delete('/api/frases/:id', async (req, res) => {
     try {
-        const id = req.params.id;
-        await Frase.findOneAndDelete({
+        const result = await Frase.findOneAndDelete({
             $or: [
-                { _id: mongoose.isValidObjectId(id) ? id : null },
-                { id: isNaN(id) ? null : Number(id) }
+                { _id: mongoose.isValidObjectId(req.params.id) ? req.params.id : null },
+                { id: req.params.id }
             ]
         });
         res.json({ message: "Frase removida." });
