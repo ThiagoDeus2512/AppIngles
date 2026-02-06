@@ -4,9 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' http://localhost:3000 https://api.mymemory.translated.net https://api.adviceslip.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3000 https://api.mymemory.translated.net https://api.adviceslip.com;">
-    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.onrender.com http://localhost:3000 https://api.mymemory.translated.net https://api.adviceslip.com; 
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; 
+        font-src https://fonts.gstatic.com; 
+        script-src 'self' 'unsafe-inline'; 
+        connect-src 'self' https://*.onrender.com http://localhost:3000 https://api.mymemory.translated.net https://api.adviceslip.com blob:;
+        media-src 'self' blob:;">
+
     <title>Life English ULTRA - 80/20 Pareto Edition</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -49,6 +53,11 @@
 
         <div id="heardText"></div>
 
+        <div id="aiDeepAnalysis"
+            style="margin-top: 15px; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 12px; font-size: 0.85rem; color: #e0e0e0; text-align: left; line-height: 1.4;">
+            <span style="color: #00d4ff; font-weight: bold;">🧠 IA Insight:</span> Aguardando sua voz...
+        </div>
+
         <button class="btn-mic" onclick="testarPronuncia()">
             🎤 TESTAR PRONÚNCIA (SHADOWING)
         </button>
@@ -62,24 +71,34 @@
             style="margin-top: 20px; background: none; border: none; color: #555; cursor: pointer; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
             PULAR ESTA FRASE ➡️
         </button>
+
+        <button onclick="deletarFraseAtual()"
+            style="display: block; margin: 15px auto 0; background: none; border: none; color: #ff4444; cursor: pointer; font-size: 0.65rem; font-weight: bold; opacity: 0.5; letter-spacing: 1px; text-transform: uppercase;">
+            🗑️ Remover do Banco
+        </button>
     </div>
 
-    <div class="admin-panel" style="background: var(--card); padding: 30px; border-radius: 20px; margin-top: 30px; width: 90%; max-width: 800px; border: 1px solid #252525;">
-        
-        <h3 style="margin:0 0 25px 0; font-size: 1rem; color: var(--primary); letter-spacing: 1.5px; font-weight: 900; text-align: center;">
+    <div class="admin-panel"
+        style="background: var(--card); padding: 30px; border-radius: 20px; margin-top: 30px; width: 90%; max-width: 800px; border: 1px solid #252525;">
+
+        <h3
+            style="margin:0 0 25px 0; font-size: 1rem; color: var(--primary); letter-spacing: 1.5px; font-weight: 900; text-align: center;">
             📊 DATA ANALYTICS (80/20 SYSTEM)
         </h3>
 
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-            <div class="stat-card" style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--pronoun)">
+            <div class="stat-card"
+                style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--pronoun)">
                 <div style="font-size: 0.7rem; color: #555; font-weight: 800;">PRONOMES</div>
                 <div id="count-pronouns" style="font-size: 1.5rem; font-weight: 900;">0</div>
             </div>
-            <div class="stat-card" style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--verb)">
+            <div class="stat-card"
+                style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--verb)">
                 <div style="font-size: 0.7rem; color: #555; font-weight: 800;">MOTORES</div>
                 <div id="count-verbs" style="font-size: 1.5rem; font-weight: 900;">0</div>
             </div>
-            <div class="stat-card" style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--adjective)">
+            <div class="stat-card"
+                style="background: #000; padding: 15px; border-radius: 12px; text-align: center; border-top: 4px solid var(--adjective)">
                 <div style="font-size: 0.7rem; color: #555; font-weight: 800;">ADJETIVOS</div>
                 <div id="count-adjectives" style="font-size: 1.5rem; font-weight: 900;">0</div>
             </div>
@@ -99,21 +118,26 @@
         </div>
 
         <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
-            <span id="tag-PAST" class="badge">PASSADO</span>
-            <span id="tag-PRESENT" class="badge">PRESENTE</span>
-            <span id="tag-FUTURE" class="badge">FUTURO</span>
+            <span id="tag-PAST" class="badge" onclick="mudarTempoFrase('PAST')" style="cursor: pointer;">PASSADO</span>
+            <span id="tag-PRESENT" class="badge" onclick="mudarTempoFrase('PRESENT')"
+                style="cursor: pointer;">PRESENTE</span>
+            <span id="tag-FUTURE" class="badge" onclick="mudarTempoFrase('FUTURE')"
+                style="cursor: pointer;">FUTURO</span>
         </div>
 
-        <input type="text" id="newEn" placeholder="Frase em inglês..." oninput="analisarDinamico()" style="margin-bottom: 10px;">
+        <input type="text" id="newEn" placeholder="Frase em inglês..." oninput="analisarDinamico()"
+            style="margin-bottom: 10px;">
 
-        <div id="translationPreview" style="font-size: 0.8rem; color: var(--primary); margin-bottom: 10px; text-align: center; font-weight: bold;">
+        <div id="translationPreview"
+            style="font-size: 0.8rem; color: var(--primary); margin-bottom: 10px; text-align: center; font-weight: bold;">
             Aguardando entrada...
         </div>
 
         <input type="text" id="newPt" placeholder="Tradução em Português" style="margin-bottom: 10px;">
         <input type="text" id="manualSounds" placeholder="Pronúncia Sugerida (Ex: ai uana lêrn)">
 
-        <select id="newLevel" style="width: 100%; padding: 15px; background: #000; color: #fff; border: 2px solid #333; border-radius: 16px; margin-top: 10px; font-weight: bold;">
+        <select id="newLevel"
+            style="width: 100%; padding: 15px; background: #000; color: #fff; border: 2px solid #333; border-radius: 16px; margin-top: 10px; font-weight: bold;">
             <option value="BEGINNER">Nível: Beginner</option>
             <option value="INTERMEDIATE">Nível: Intermediate</option>
             <option value="ADVANCED">Nível: Advanced</option>
@@ -126,7 +150,8 @@
 
     <div class="review-panel" id="reviewPanel"
         style="background: var(--card); padding: 20px; border-radius: 20px; margin-top: 20px; width: 90%; max-width: 800px; border: 1px solid #333; display: none;">
-        <span style="color: var(--error); font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+        <span
+            style="color: var(--error); font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
             ⚠️ REVISÃO ATIVA (FALHAS RECENTES)
         </span>
         <div id="reviewList" style="margin-top: 15px; display: grid; gap: 10px;"></div>
