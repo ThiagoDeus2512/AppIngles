@@ -120,3 +120,4 @@ app.get(/.*/, (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n\x1b[32m🚀 SERVER ONLINE | PORTA: ${PORT}\x1b[0m\n`);
 });
+
