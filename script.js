@@ -97,7 +97,6 @@ function calcularDistancia(a, b) {
 }
 
 // --- FUNÇÕES IA & TEMPO ---
-
 function mudarTempoFrase(novoTempo) {
     let en = document.getElementById('newEn').value;
     if (!en) return;
@@ -242,7 +241,6 @@ function renderSRS() {
 }
 
 // --- FEEDBACK DE VOZ COM MOTOR DE IA GEMINI ---
-
 function gerarFeedbackShadowing(original, falado) {
     const limpar = (t) => t.toLowerCase().replace(/[?.,!]/g, "").trim();
     const origArr = limpar(original).split(/\s+/);
@@ -258,12 +256,8 @@ function gerarFeedbackShadowing(original, falado) {
     return { html, precisao: (scoreTotal / origArr.length) * 100 };
 }
 
-/**
- * ENVIAR PARA IA: Otimizado para feedback profundo
- */
 async function enviarAudioParaIA(blob, expectedText) {
     const formData = new FormData();
-    // AJUSTADO: Nomeando como .webm e forçando o tipo para o Gemini não rejeitar
     formData.append('audio', blob, 'recording.webm');
     formData.append('expectedText', expectedText);
 
@@ -274,81 +268,82 @@ async function enviarAudioParaIA(blob, expectedText) {
         const response = await fetch(VOICE_API_URL, {
             method: 'POST',
             body: formData
-            // Nota: Não defina Content-Type manualmente ao usar FormData
         });
 
         if (!response.ok) throw new Error(`Erro: ${response.status}`);
 
         const data = await response.json();
-
         if (data.status === "success" && analysisDiv) {
             analysisDiv.innerHTML = `<span style="color: #00d4ff; font-weight: bold;">🧠 IA Insight:</span> ${data.feedback}`;
-        } else {
-            throw new Error(data.error || "IA indisponível");
         }
     } catch (err) {
         console.error("Erro Gemini:", err);
-        if (analysisDiv) analysisDiv.innerHTML = "❌ <span style='color: #ff4444'>Falha na análise. Verifique a conexão.</span>";
+        if (analysisDiv) analysisDiv.innerHTML = "❌ <span style='color: #ff4444'>Falha na análise da IA.</span>";
     }
 }
 
 async function testarPronuncia() {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Speech) return alert("Voz não suportada.");
+    if (!Speech) return alert("Navegador não suporta reconhecimento de voz.");
 
     const rec = new Speech();
     rec.lang = 'en-US';
     rec.interimResults = false;
 
     try {
+        // Captura de áudio real para o Gemini
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // AJUSTADO: mimeType explícito para WebM
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        mediaRecorder = new MediaRecorder(stream);
         audioChunks = [];
+
         mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
         mediaRecorder.start();
-    } catch (err) { console.error("Mic bloqueado"); return; }
 
-    rec.onstart = () => {
-        document.getElementById('wave').classList.add('active');
-        document.getElementById('heardText').innerText = "Ouvindo...";
-    };
+        rec.onstart = () => {
+            document.getElementById('wave').classList.add('active');
+            document.getElementById('heardText').innerText = "Ouvindo...";
+        };
 
-    rec.onresult = async (e) => {
-        const talk = e.results[0][0].transcript;
-        const textoOriginal = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
-        const feedback = gerarFeedbackShadowing(textoOriginal, talk);
+        rec.onresult = async (e) => {
+            const talk = e.results[0][0].transcript;
+            const textoOriginal = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
+            const feedback = gerarFeedbackShadowing(textoOriginal, talk);
 
-        document.getElementById('heardText').innerHTML = `
-            <div style="font-size: 0.8rem; color: #888;">Detected: "${talk}"</div>
-            <div>${feedback.html}</div>
-            <div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}">
-                PRECISION: ${Math.round(feedback.precisao)}%
-            </div>
-        `;
+            document.getElementById('heardText').innerHTML = `
+                <div style="font-size: 0.8rem; color: #888;">Detectado: "${talk}"</div>
+                <div>${feedback.html}</div>
+                <div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}">
+                    PRECISÃO: ${Math.round(feedback.precisao)}%
+                </div>
+            `;
 
-        if (feedback.precisao >= 70) {
-            finalizarSucesso(getCurrentItem(), Math.floor(feedback.precisao), true);
-        } else {
-            triggerErrorEffect();
-            registrarErro();
-        }
+            // Parar gravação e enviar para Gemini
+            if (mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    enviarAudioParaIA(audioBlob, textoOriginal);
+                };
+            }
 
-        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-            mediaRecorder.onstop = () => {
-                // AJUSTADO: Garantindo o Blob com o tipo correto para o Gemini
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                enviarAudioParaIA(audioBlob, textoOriginal);
-            };
-        }
-    };
+            if (feedback.precisao >= 70) {
+                finalizarSucesso(getCurrentItem(), Math.floor(feedback.precisao), true);
+            } else {
+                triggerErrorEffect();
+                registrarErro();
+            }
+        };
 
-    rec.onend = () => {
-        document.getElementById('wave').classList.remove('active');
-    };
+        rec.onend = () => {
+            document.getElementById('wave').classList.remove('active');
+        };
 
-    rec.start();
+        rec.start();
+
+    } catch (err) {
+        console.error("Mic bloqueado ou erro:", err);
+        alert("Por favor, permita o acesso ao microfone.");
+    }
 }
 
 function finalizarSucesso(item, baseXP, isVoz) {
@@ -553,20 +548,30 @@ async function saveNewPhrase() {
 
 async function deletarFraseAtual() {
     const item = getCurrentItem();
-    if (!item || !item._id) {
+    if (!item) return;
+
+    // Tenta encontrar o ID único do Mongo ou o ID numérico
+    const idToDelete = item._id || item.id;
+
+    if (!idToDelete) {
         alert("Atenção: Apenas frases vindas do Banco de Dados podem ser removidas.");
         return;
     }
+
     if (!confirm(`Deseja deletar permanentemente:\n"${item.en}"?`)) return;
+
     try {
-        const res = await fetch(`${API_URL}/${item._id}`, {
+        const res = await fetch(`${API_URL}/${idToDelete}`, {
             method: 'DELETE',
             mode: 'cors'
         });
         if (res.ok) {
             alert("🗑️ Removida com sucesso!");
-            frases = frases.filter(f => f._id !== item._id);
+            frases = frases.filter(f => (f._id || f.id) !== idToDelete);
             proximaFrase();
+        } else {
+            const error = await res.json();
+            alert("Erro: " + error.error);
         }
     } catch (e) { alert("Falha de conexão com o Banco."); }
 }
