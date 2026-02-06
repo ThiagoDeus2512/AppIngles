@@ -53,37 +53,43 @@ app.use(express.static(__dirname));
 
 /**
  * ROTA ATUALIZADA: IA Voice Analysis com GEMINI 1.5 FLASH
- * Processamento de áudio otimizado para feedback fonético
+ * Adicionado suporte robusto a múltiplos formatos de áudio (WebM/Ogg/Opus)
  */
 app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
     try {
         const { expectedText } = req.body;
         const audioFile = req.file;
 
-        if (!audioFile) return res.status(400).json({ error: "Áudio não recebido." });
+        if (!audioFile) return res.status(400).json({ error: "Áudio não recebido pelo servidor." });
         if (!process.env.GEMINI_API_KEY) {
-            console.error("⚠️ ERRO: GEMINI_API_KEY não encontrada nas variáveis de ambiente.");
-            return res.status(500).json({ error: "Chave do Gemini não configurada no servidor." });
+            console.error("⚠️ ERRO: GEMINI_API_KEY ausente.");
+            return res.status(500).json({ error: "Configuração de IA pendente." });
         }
 
-        console.log(`\n\x1b[35m[GEMINI AI ENGINE]\x1b[0m Analisando pronúncia: "${expectedText}"`);
+        console.log(`\n\x1b[35m[GEMINI AI ENGINE]\x1b[0m Analisando: "${expectedText}"`);
 
-        // Usando o modelo flash que é mais rápido e eficiente para áudio
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        // NORMALIZAÇÃO DE MIME TYPE: 
+        // Navegadores às vezes enviam application/octet-stream. O Gemini precisa saber que é áudio.
+        let detectedMime = audioFile.mimetype;
+        if (detectedMime === 'application/octet-stream' || !detectedMime) {
+            detectedMime = 'audio/webm';
+        }
 
         const part = {
             inlineData: {
                 data: audioFile.buffer.toString("base64"),
-                mimeType: audioFile.mimetype || "audio/webm"
+                mimeType: detectedMime
             }
         };
 
-        const prompt = `Atue como um professor de inglês nativo. Analise o áudio anexo.
-        A frase esperada é: "${expectedText}".
-        1. Compare o que foi dito com a frase esperada.
-        2. Dê um feedback curto (máximo 2 frases) em português.
-        3. Se houver erro de entonação ou palavras específicas, cite-as.
-        4. No final, dê uma nota de 0 a 100 no formato "Nota: X/100".`;
+        const prompt = `Você é um professor nativo de inglês. Analise a pronúncia do usuário.
+        Frase esperada: "${expectedText}".
+        Compare o áudio e responda em Português:
+        1. Feedback da precisão (curto e amigável).
+        2. Liste palavras específicas que precisam de correção se houver.
+        3. Termine com uma nota de 0 a 100 no formato: "Nota: X/100".`;
 
         const result = await model.generateContent([prompt, part]);
         const response = await result.response;
@@ -96,7 +102,10 @@ app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
 
     } catch (err) {
         console.error("❌ Erro na análise do Gemini:", err.message);
-        res.status(500).json({ error: "Ocorreu um erro ao processar sua voz na IA." });
+        res.status(500).json({
+            error: "Falha na análise da IA.",
+            details: err.message
+        });
     }
 });
 

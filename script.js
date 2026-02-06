@@ -263,8 +263,8 @@ function gerarFeedbackShadowing(original, falado) {
  */
 async function enviarAudioParaIA(blob, expectedText) {
     const formData = new FormData();
-    // Ajustado para .ogg para melhor compatibilidade com o backend Gemini no Render
-    formData.append('audio', blob, 'recording.ogg');
+    // AJUSTADO: Nomeando como .webm e forçando o tipo para o Gemini não rejeitar
+    formData.append('audio', blob, 'recording.webm');
     formData.append('expectedText', expectedText);
 
     const analysisDiv = document.getElementById('aiDeepAnalysis');
@@ -274,10 +274,11 @@ async function enviarAudioParaIA(blob, expectedText) {
         const response = await fetch(VOICE_API_URL, {
             method: 'POST',
             body: formData
+            // Nota: Não defina Content-Type manualmente ao usar FormData
         });
-        
-        if (!response.ok) throw new Error("Erro no servidor (500)");
-        
+
+        if (!response.ok) throw new Error(`Erro: ${response.status}`);
+
         const data = await response.json();
 
         if (data.status === "success" && analysisDiv) {
@@ -301,9 +302,10 @@ async function testarPronuncia() {
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
+        // AJUSTADO: mimeType explícito para WebM
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         audioChunks = [];
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
         mediaRecorder.start();
     } catch (err) { console.error("Mic bloqueado"); return; }
 
@@ -335,8 +337,8 @@ async function testarPronuncia() {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
             mediaRecorder.onstop = () => {
-                // ALTERADO: Formato ogg/opus é mais estável para APIs de IA
-                const audioBlob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
+                // AJUSTADO: Garantindo o Blob com o tipo correto para o Gemini
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 enviarAudioParaIA(audioBlob, textoOriginal);
             };
         }
