@@ -8,8 +8,8 @@ const { GoogleGenerativeAI } = require("@google/generative-ai"); // Adicionado: 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configuração do Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Configuração do Gemini - Adicionado verificação de segurança
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "SEM_CHAVE");
 
 // Configuração de armazenamento temporário para o áudio da IA
 const upload = multer({ storage: multer.memoryStorage() });
@@ -52,8 +52,8 @@ app.use(express.static(__dirname));
 // --- ROTAS DA API ---
 
 /**
- * ROTA ATUALIZADA: IA Voice Analysis com GEMINI
- * Agora processa o áudio real e retorna feedback inteligente
+ * ROTA ATUALIZADA: IA Voice Analysis com GEMINI 1.5 FLASH
+ * Processamento de áudio otimizado para feedback fonético
  */
 app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
     try {
@@ -61,25 +61,29 @@ app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
         const audioFile = req.file;
 
         if (!audioFile) return res.status(400).json({ error: "Áudio não recebido." });
-        if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: "Chave do Gemini não configurada no Render." });
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("⚠️ ERRO: GEMINI_API_KEY não encontrada nas variáveis de ambiente.");
+            return res.status(500).json({ error: "Chave do Gemini não configurada no servidor." });
+        }
 
-        console.log(`\n\x1b[35m[GEMINI AI ENGINE]\x1b[0m Analisando pronúncia para: "${expectedText}"`);
+        console.log(`\n\x1b[35m[GEMINI AI ENGINE]\x1b[0m Analisando pronúncia: "${expectedText}"`);
 
+        // Usando o modelo flash que é mais rápido e eficiente para áudio
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        // Prepara o áudio para o Gemini
         const part = {
             inlineData: {
                 data: audioFile.buffer.toString("base64"),
-                mimeType: audioFile.mimetype
+                mimeType: audioFile.mimetype || "audio/webm"
             }
         };
 
-        const prompt = `Analise a pronúncia do usuário no áudio anexo. 
-        A frase que ele deveria dizer é: "${expectedText}".
-        Compare o áudio com a frase. Se a pronúncia estiver boa, elogie. 
-        Se houver erro em palavras específicas, indique como melhorar de forma curta e amigável em português. 
-        Dê uma nota de 0 a 100 para a precisão.`;
+        const prompt = `Atue como um professor de inglês nativo. Analise o áudio anexo.
+        A frase esperada é: "${expectedText}".
+        1. Compare o que foi dito com a frase esperada.
+        2. Dê um feedback curto (máximo 2 frases) em português.
+        3. Se houver erro de entonação ou palavras específicas, cite-as.
+        4. No final, dê uma nota de 0 a 100 no formato "Nota: X/100".`;
 
         const result = await model.generateContent([prompt, part]);
         const response = await result.response;
@@ -91,8 +95,8 @@ app.post('/api/analyze-voice', upload.single('audio'), async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Erro na análise do Gemini:", err);
-        res.status(500).json({ error: "Falha na comunicação com a IA do Google." });
+        console.error("❌ Erro na análise do Gemini:", err.message);
+        res.status(500).json({ error: "Ocorreu um erro ao processar sua voz na IA." });
     }
 });
 

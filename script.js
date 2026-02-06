@@ -263,7 +263,8 @@ function gerarFeedbackShadowing(original, falado) {
  */
 async function enviarAudioParaIA(blob, expectedText) {
     const formData = new FormData();
-    formData.append('audio', blob, 'recording.webm');
+    // Ajustado para .ogg para melhor compatibilidade com o backend Gemini no Render
+    formData.append('audio', blob, 'recording.ogg');
     formData.append('expectedText', expectedText);
 
     const analysisDiv = document.getElementById('aiDeepAnalysis');
@@ -274,16 +275,19 @@ async function enviarAudioParaIA(blob, expectedText) {
             method: 'POST',
             body: formData
         });
+        
+        if (!response.ok) throw new Error("Erro no servidor (500)");
+        
         const data = await response.json();
 
         if (data.status === "success" && analysisDiv) {
             analysisDiv.innerHTML = `<span style="color: #00d4ff; font-weight: bold;">🧠 IA Insight:</span> ${data.feedback}`;
         } else {
-            throw new Error(data.error);
+            throw new Error(data.error || "IA indisponível");
         }
     } catch (err) {
         console.error("Erro Gemini:", err);
-        if (analysisDiv) analysisDiv.innerHTML = "❌ <span style='color: #ff4444'>IA offline. Verifique a chave no Render.</span>";
+        if (analysisDiv) analysisDiv.innerHTML = "❌ <span style='color: #ff4444'>Falha na análise. Verifique a conexão.</span>";
     }
 }
 
@@ -295,7 +299,6 @@ async function testarPronuncia() {
     rec.lang = 'en-US';
     rec.interimResults = false;
 
-    // Iniciar gravação do arquivo real para o Gemini
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
@@ -322,7 +325,6 @@ async function testarPronuncia() {
             </div>
         `;
 
-        // Se a precisão for boa, encerra com sucesso
         if (feedback.precisao >= 70) {
             finalizarSucesso(getCurrentItem(), Math.floor(feedback.precisao), true);
         } else {
@@ -330,11 +332,11 @@ async function testarPronuncia() {
             registrarErro();
         }
 
-        // Parar gravação e enviar o BLOB para o Gemini
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
             mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                // ALTERADO: Formato ogg/opus é mais estável para APIs de IA
+                const audioBlob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
                 enviarAudioParaIA(audioBlob, textoOriginal);
             };
         }
@@ -359,7 +361,6 @@ function finalizarSucesso(item, baseXP, isVoz) {
     filaSRS = filaSRS.filter(x => x.en !== item.en);
     localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
 
-    // Delay maior para permitir a leitura do feedback da IA
     setTimeout(proximaFrase, 4000);
 }
 
