@@ -19,7 +19,7 @@ let xp = parseInt(localStorage.getItem('dev_xp')) || 0;
 let indexAtual = 0;
 let nivelAtivo = 'BEGINNER';
 let analiseAtual = {};
-let timeLeft = 15;
+let timeLeft = 25; // Aumentado para 25
 let timerFunc;
 let timeoutTraducao;
 let filaSRS = JSON.parse(localStorage.getItem('dev_srs_queue_v2')) || [];
@@ -193,11 +193,11 @@ function revelarResposta(item) {
     }
 }
 
-// --- TIMER ADAPTATIVO ---
+// --- TIMER ADAPTATIVO (ATUALIZADO PARA MAIS TEMPO) ---
 function startTimer() {
     clearInterval(timerFunc);
-    let penalty = Math.floor(xp / 3000);
-    timeLeft = Math.max(7, 15 - penalty);
+    let penalty = Math.floor(xp / 5000); // Penalidade mais lenta
+    timeLeft = Math.max(12, 25 - penalty); // Começa com 25s, mínimo de 12s
     const timerDisplay = document.getElementById('timerDisplay');
     if (timerDisplay) {
         timerDisplay.innerText = timeLeft;
@@ -309,12 +309,12 @@ async function testarPronuncia() {
             const textoOriginal = document.getElementById('blockDisplay').innerText.replace(/\n/g, " ");
             const feedback = gerarFeedbackShadowing(textoOriginal, talk);
 
-            document.getElementById('heardText').innerHTML = `
-                <div style="font-size: 0.8rem; color: #888;">Detectado: "${talk}"</div>
-                <div>${feedback.html}</div>
-                <div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}">
-                    PRECISÃO: ${Math.round(feedback.precisao)}%
-                </div>
+            document.getElementById('heardText').innerHTML = `<br>
+                <div style="font-size: 0.8rem; color: #888;">Detectado: "${talk}"</div><br>
+                <div>${feedback.html}</div><br>
+                <div style="font-weight: 900; color: ${feedback.precisao > 70 ? '#00ff88' : '#ff4444'}"><br>
+                    PRECISÃO: ${Math.round(feedback.precisao)}%<br>
+                </div><br>
             `;
 
             // Parar gravação e enviar para Gemini
@@ -358,7 +358,8 @@ function finalizarSucesso(item, baseXP, isVoz) {
     filaSRS = filaSRS.filter(x => x.en !== item.en);
     localStorage.setItem('dev_srs_queue_v2', JSON.stringify(filaSRS));
 
-    setTimeout(proximaFrase, 4000);
+    // Aumentado para 8000 (8 segundos) para dar tempo de ler e falar
+    setTimeout(proximaFrase, 8000); 
 }
 
 // --- RENDERIZAÇÃO ---
@@ -392,7 +393,12 @@ function render() {
         div.className = 'chunk'; div.innerText = text; div.style = getCorGramatical(text);
         display.appendChild(div);
     });
-    falar(item.en);
+    
+    // Delay de 1s antes de falar para não atropelar a transição visual
+    setTimeout(() => {
+        falar(item.en);
+    }, 1000);
+    
     startTimer();
 }
 
@@ -550,7 +556,6 @@ async function deletarFraseAtual() {
     const item = getCurrentItem();
     if (!item) return;
 
-    // Tenta encontrar o ID único do Mongo ou o ID numérico
     const idToDelete = item._id || item.id;
 
     if (!idToDelete) {
